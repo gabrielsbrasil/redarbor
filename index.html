@@ -106,6 +106,28 @@ button{font-family:inherit;}
   border:1px solid var(--border);
 }
 .nav-item.active .nav-avatar{background:var(--light-blue);color:#fff;border-color:transparent;}
+.nav-area-block{margin-top:6px;}
+.nav-area-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 10px;border-radius:9px;cursor:pointer;
+  color:#fff;font-size:12.5px;font-weight:500;
+  text-transform:uppercase;letter-spacing:.03em;
+  border:1px solid transparent;
+}
+.nav-area-item:hover{background:rgba(255,255,255,.05);}
+.nav-area-item.active{
+  background:linear-gradient(90deg, rgba(38,110,242,.26), rgba(38,110,242,.05));
+  border-color:rgba(38,110,242,.4);
+}
+.nav-area-icon{
+  width:22px;height:22px;border-radius:6px;flex-shrink:0;
+  background:rgba(38,110,242,.16);color:var(--light-blue-2);
+  display:flex;align-items:center;justify-content:center;font-size:11px;
+}
+.nav-leaders{list-style:none;margin:2px 0 4px 14px;padding:0 0 0 10px;
+  border-left:1px solid var(--border);display:flex;flex-direction:column;gap:1px;}
+.nav-leaders .nav-item{font-size:12.5px;padding:7px 9px;}
+.nav-leaders .nav-avatar{width:20px;height:20px;font-size:9px;}
 .nav-count{
   margin-left:auto;font-size:10.5px;color:var(--text-muted);
   background:rgba(255,255,255,.05);padding:1px 7px;border-radius:20px;
@@ -412,7 +434,7 @@ window.DASHBOARD_CONFIG = {
   owner: "gabrielsbrasil",
   repo: "SEU-REPOSITORIO-AQUI",
   branch: "main",
-  membersPath: "data/lista_membros_por_lideranca.csv",
+  membersPath: "data/membros.csv",
   attendanceFolder: "data",
   attendancePrefix: "redarbor"
 };
@@ -430,14 +452,15 @@ window.DASHBOARD_CONFIG = {
       </div>
     </div>
 
-    <div class="nav-label">Painel</div>
-    <ul class="nav-list" id="nav-overview"></ul>
+    <div id="nav-overview-section">
+      <div class="nav-label">Painel</div>
+      <ul class="nav-list" id="nav-overview"></ul>
+    </div>
 
-    <div class="nav-label">Times por liderança</div>
-    <ul class="nav-list" id="nav-teams"></ul>
+    <div id="nav-areas"></div>
 
     <div class="sidebar-foot">
-      <p>Dados de consumo importados via CSV (arquivo "redarbor"). Atualize o arquivo e regenere o painel para refletir novos acessos.</p>
+      <p>Dados de consumo importados via CSV (arquivo "redarbor"). Suba um novo arquivo em "data/" para atualizar os acessos.</p>
     </div>
   </aside>
 
@@ -586,14 +609,15 @@ function slugify(s){
 
 /* ============ MONTA A ESTRUTURA DE TIMES A PARTIR DOS CSVS ============ */
 function buildTeams(membersRows, attendanceRows){
-  const teamsMap = new Map();
+  const teamsMap = new Map(); // leader -> {area, members:[]}
   membersRows.forEach(row=>{
-    const leader = (row['LIDER/Gestão']||row['LIDER/Gestao']||'').trim();
-    const nome = (row['Nome completo do membro']||'').trim();
-    const email = (row['E-mail do membro']||'').trim().toLowerCase();
+    const area = (row['AREA'] || row['Área'] || row['area'] || 'Sem área').trim();
+    const leader = (row['LÍDER/GESTÃO'] || row['LIDER/GESTAO'] || row['LIDER/Gestão'] || row['LIDER/Gestao'] || '').trim();
+    const nome = (row['NOME COMPLETO'] || row['Nome completo do membro'] || '').trim();
+    const email = (row['E-MAIL DO MEMBRO'] || row['E-mail do membro'] || '').trim().toLowerCase();
     if(!leader || !nome || !email) return;
-    if(!teamsMap.has(leader)) teamsMap.set(leader, []);
-    teamsMap.get(leader).push({nome, email});
+    if(!teamsMap.has(leader)) teamsMap.set(leader, {area, members:[]});
+    teamsMap.get(leader).members.push({nome, email});
   });
 
   const attByEmail = new Map();
@@ -614,7 +638,7 @@ function buildTeams(membersRows, attendanceRows){
   attByEmail.forEach(list => list.sort((a,b)=> (b.iso||'').localeCompare(a.iso||'')));
 
   const teams = [];
-  teamsMap.forEach((members, leader)=>{
+  teamsMap.forEach(({area, members}, leader)=>{
     const membros = members.map(m=>{
       const lessons = attByEmail.get(m.email) || [];
       return {
@@ -624,15 +648,24 @@ function buildTeams(membersRows, attendanceRows){
       };
     });
     membros.sort((a,b)=>b.totalAulas-a.totalAulas);
-    teams.push({ lider: leader, slug: slugify(leader), membros });
+    teams.push({ lider: leader, slug: slugify(leader), area, areaSlug: slugify(area), membros });
   });
   teams.sort((a,b)=> a.lider.localeCompare(b.lider, 'pt-BR'));
+
+  // agrupa em áreas
+  const areasMap = new Map();
+  teams.forEach(t=>{
+    if(!areasMap.has(t.areaSlug)) areasMap.set(t.areaSlug, { area: t.area, slug: t.areaSlug, leaders: [] });
+    areasMap.get(t.areaSlug).leaders.push(t);
+  });
+  const areas = [...areasMap.values()].sort((a,b)=> a.area.localeCompare(b.area, 'pt-BR'));
+  areas.forEach(a => a.leaders.sort((x,y)=> x.lider.localeCompare(y.lider, 'pt-BR')));
 
   const matchedEmails = new Set();
   teams.forEach(t=>t.membros.forEach(m=>matchedEmails.add(m.email)));
   const unmatched = [...attByEmail.keys()].filter(e=>!matchedEmails.has(e));
 
-  return { teams, dedupCount, unmatched };
+  return { teams, areas, dedupCount, unmatched };
 }
 
 /* ============ CARREGAMENTO DOS DADOS (GITHUB) ============ */
@@ -698,10 +731,11 @@ async function loadAllData(){
   let attendanceRows = [];
   texts.forEach(t => { attendanceRows = attendanceRows.concat(parseCSV(t)); });
 
-  const { teams, dedupCount, unmatched } = buildTeams(membersRows, attendanceRows);
+  const { teams, areas, dedupCount, unmatched } = buildTeams(membersRows, attendanceRows);
 
   return {
     teams,
+    areas,
     sourceFiles: csvFiles.map(f=>f.name),
     totalRows: attendanceRows.length,
     dedupCount,
@@ -712,17 +746,25 @@ async function loadAllData(){
 
 /* ============ ESTADO GLOBAL DE DADOS (populado após o load) ============ */
 let RAW_TEAMS = [];
+let RAW_AREAS = [];
 let ALL_ISO = [];
 let MIN_DATE = null, MAX_DATE = null;
 let AVAILABLE_MONTHS = [];
 const teamBySlug = {};
+const areaBySlug = {};
 
 function deriveGlobals(){
   Object.keys(teamBySlug).forEach(k=>delete teamBySlug[k]);
+  Object.keys(areaBySlug).forEach(k=>delete areaBySlug[k]);
   ALL_ISO = [];
   RAW_TEAMS.forEach(t=>{
     teamBySlug[t.slug] = t;
     if(!(t.slug in state.selectedMembers)) state.selectedMembers[t.slug] = null;
+  });
+  RAW_AREAS.forEach(a=>{
+    areaBySlug[a.slug] = a;
+    const key = 'area:' + a.slug;
+    if(!(key in state.selectedMembers)) state.selectedMembers[key] = null;
   });
   RAW_TEAMS.forEach(t => t.membros.forEach(m => m.aulas.forEach(a => { if(a.iso) ALL_ISO.push(a.iso); })));
   ALL_ISO.sort();
@@ -733,20 +775,21 @@ function deriveGlobals(){
 
 /* ============ STATE ============ */
 const state = {
-  view: 'overview', // 'overview' or team slug
+  view: 'overview', // 'overview', 'area:<slug>' ou slug de uma liderança
   dateFrom: null,
   dateTo: null,
-  selectedMembers: {}, // slug -> Set(emails) or null = all
-  locked: false,       // true when accessed via ?time=<slug> (link exclusivo de liderança)
-  lockedInvalid: false // true when ?time= was given but didn't match a real team
+  selectedMembers: {}, // chave (slug de liderança ou "area:<slug>") -> Set(emails) ou null = todos
+  locked: false,        // true quando acessado via ?time=<slug> ou ?area=<slug>
+  lockType: 'none',     // 'none' | 'leader' | 'area'
+  lockAreaSlug: null,   // preenchido quando lockType === 'area'
+  lockedInvalid: false  // true quando o parâmetro da URL não bateu com nenhum time/área
 };
 
-function getLockedTeamSlugFromUrl(){
+function getUrlLockParams(){
   try {
     const params = new URLSearchParams(window.location.search);
-    const v = params.get('time');
-    return v ? v.trim() : null;
-  } catch(e){ return null; }
+    return { time: params.get('time'), area: params.get('area') };
+  } catch(e){ return { time:null, area:null }; }
 }
 
 const MONTH_NAMES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
@@ -897,57 +940,91 @@ function setupFilterListenersOnce(){
   });
 }
 
+function membersForView(view){
+  if(view === 'overview'){
+    let arr = []; RAW_TEAMS.forEach(t => t.membros.forEach(m => arr.push({m, lider:t.lider})));
+    return arr;
+  }
+  if(view.startsWith('area:')){
+    const area = areaBySlug[view.slice(5)];
+    if(!area) return [];
+    let arr = []; area.leaders.forEach(t => t.membros.forEach(m => arr.push({m, lider:t.lider})));
+    return arr;
+  }
+  const team = teamBySlug[view];
+  return team ? team.membros.map(m => ({m, lider:null})) : [];
+}
+
 function renderMemberChecklist(){
   const wrap = document.getElementById('member-dropdown-wrap');
   const list = document.getElementById('member-checklist');
   const memberBtn = document.getElementById('member-dropdown-btn');
-  if(state.view==='overview'){ wrap.style.display='none'; return; }
+  if(state.view === 'overview'){ wrap.style.display='none'; return; }
+
+  const wrapped = membersForView(state.view);
+  if(wrapped.length === 0 && !(state.view.startsWith('area:') ? areaBySlug[state.view.slice(5)] : teamBySlug[state.view])){
+    wrap.style.display='none'; return;
+  }
   wrap.style.display='flex';
-  const team = teamBySlug[state.view];
-  if(!team) { wrap.style.display='none'; return; }
   const sel = state.selectedMembers[state.view];
   list.innerHTML='';
-  team.membros.forEach(m=>{
+  wrapped.forEach(({m,lider})=>{
     const row = document.createElement('label');
     row.className='chk-row';
     const checked = !sel || sel.has(m.email);
-    row.innerHTML = `<input type="checkbox" ${checked?'checked':''} data-email="${m.email}"> ${m.nome}`;
+    row.innerHTML = `<input type="checkbox" ${checked?'checked':''} data-email="${m.email}"> ${m.nome}${lider?`<span style="color:var(--text-muted);font-size:10.5px;"> · ${lider}</span>`:''}`;
     list.appendChild(row);
   });
   list.querySelectorAll('input').forEach(inp=>{
     inp.addEventListener('change', ()=>{
       let sel = state.selectedMembers[state.view];
-      if(!sel){ sel = new Set(team.membros.map(x=>x.email)); }
+      if(!sel){ sel = new Set(wrapped.map(x=>x.m.email)); }
       if(inp.checked) sel.add(inp.dataset.email); else sel.delete(inp.dataset.email);
-      if(sel.size === team.membros.length) sel = null;
+      if(sel.size === wrapped.length) sel = null;
       state.selectedMembers[state.view] = sel;
       render();
     });
   });
-  const total = team.membros.length;
+  const total = wrapped.length;
   const activeCount = sel ? sel.size : total;
   memberBtn.textContent = (activeCount===total ? 'Todos selecionados' : `${activeCount} de ${total}`) + ' ▾';
 }
 
-/* ============ SIDEBAR NAV ============ */
+/* ============ SIDEBAR NAV (Visão geral → Área → Liderança) ============ */
 function buildSidebar(){
   const ovUl = document.getElementById('nav-overview');
   ovUl.innerHTML = `<li class="nav-item" data-view="overview"><span class="nav-avatar">◎</span> Visão geral</li>`;
 
-  const teamsUl = document.getElementById('nav-teams');
-  teamsUl.innerHTML = '';
-  RAW_TEAMS.forEach(t=>{
-    const li = document.createElement('li');
-    li.className='nav-item';
-    li.dataset.view = t.slug;
-    li.innerHTML = `<span class="nav-avatar">${initials(t.lider)}</span> <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.lider}</span><span class="nav-count">${t.membros.length}</span>`;
-    teamsUl.appendChild(li);
+  const areasWrap = document.getElementById('nav-areas');
+  areasWrap.innerHTML = '';
+  RAW_AREAS.forEach(area=>{
+    const block = document.createElement('div');
+    block.className = 'nav-area-block';
+    block.dataset.areaSlug = area.slug;
+    const areaKey = 'area:' + area.slug;
+    const totalMembers = area.leaders.reduce((s,t)=>s+t.membros.length,0);
+    block.innerHTML = `
+      <div class="nav-area-item" data-view="${areaKey}">
+        <span class="nav-area-icon">▦</span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${area.area}</span>
+        <span class="nav-count">${totalMembers}</span>
+      </div>
+      <ul class="nav-leaders">
+        ${area.leaders.map(t=>`
+          <li class="nav-item" data-view="${t.slug}">
+            <span class="nav-avatar">${initials(t.lider)}</span>
+            <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.lider}</span>
+            <span class="nav-count">${t.membros.length}</span>
+          </li>`).join('')}
+      </ul>
+    `;
+    areasWrap.appendChild(block);
   });
 
-  document.querySelectorAll('.nav-item').forEach(el=>{
+  document.querySelectorAll('.nav-item, .nav-area-item').forEach(el=>{
     el.addEventListener('click', ()=>{
       state.view = el.dataset.view;
-      document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.nav-item, .nav-area-item').forEach(x=>x.classList.remove('active'));
       el.classList.add('active');
       document.getElementById('sidebar').classList.remove('open');
       document.getElementById('sidebar-scrim').classList.remove('open');
@@ -956,9 +1033,28 @@ function buildSidebar(){
     });
   });
 
-  if(!teamBySlug[state.view] && state.view !== 'overview') state.view = 'overview';
-  const activeEl = document.querySelector(`.nav-item[data-view="${CSS.escape(state.view)}"]`)
-    || document.querySelector('.nav-item[data-view="overview"]');
+  // Modo travado por área: só mostra a área liberada, esconde "Visão geral" e as demais áreas
+  const overviewSection = document.getElementById('nav-overview-section');
+  if(state.lockType === 'area'){
+    if(overviewSection) overviewSection.style.display = 'none';
+    document.querySelectorAll('.nav-area-block').forEach(block=>{
+      block.style.display = (block.dataset.areaSlug === state.lockAreaSlug) ? '' : 'none';
+    });
+  } else {
+    if(overviewSection) overviewSection.style.display = '';
+    document.querySelectorAll('.nav-area-block').forEach(block=>{ block.style.display = ''; });
+  }
+
+  const isValidView = state.view === 'overview'
+    || !!teamBySlug[state.view]
+    || (state.view.startsWith('area:') && !!areaBySlug[state.view.slice(5)]);
+  if(!isValidView) state.view = 'overview';
+
+  let activeEl = null;
+  document.querySelectorAll('.nav-item, .nav-area-item').forEach(el=>{
+    if(el.dataset.view === state.view) activeEl = el;
+  });
+  if(!activeEl) activeEl = document.querySelector('.nav-item[data-view="overview"]');
   if(activeEl) activeEl.classList.add('active');
 }
 
@@ -991,11 +1087,16 @@ function renderOverview(container){
   allMembers.sort((a,b)=>b.total-a.total);
   const topMembers = allMembers.slice(0,8);
 
+  const areaStats = RAW_AREAS.map(a=>{
+    let members=[]; a.leaders.forEach(t=>{ members = members.concat(t.membros); });
+    return { area:a, ...computeIndicators(members) };
+  }).sort((a,b)=>b.totalAulas-a.totalAulas);
+
   container.innerHTML = `
     <div class="team-banner">
       <div>
         <h2>Todos os times</h2>
-        <div class="desc">${RAW_TEAMS.length} lideranças · ${totalMembros} membros mapeados</div>
+        <div class="desc">${RAW_AREAS.length} áreas · ${RAW_TEAMS.length} lideranças · ${totalMembros} membros mapeados</div>
       </div>
       <div class="period-chip">${periodLabel()}</div>
     </div>
@@ -1009,18 +1110,36 @@ function renderOverview(container){
       <div class="kpi-card"><div class="kpi-label">Último acesso registrado</div><div class="kpi-value" style="font-size:18px;">${lastAccess?fmtDateBR(lastAccess):'—'}</div></div>
     </div>
 
+    <div class="panel table-panel">
+      <div class="panel-head"><h3>Comparativo por área</h3><span class="hint">período selecionado</span></div>
+      <table>
+        <thead><tr><th>Área</th><th>Lideranças</th><th>Membros</th><th>Aulas no período</th><th>Média / membro</th><th>% que logou</th><th>% assistiu 3+ aulas</th></tr></thead>
+        <tbody>
+          ${areaStats.map(x=>`<tr>
+            <td style="color:#fff;font-weight:500;">${x.area.area}</td>
+            <td>${x.area.leaders.length}</td>
+            <td>${x.total}</td>
+            <td><span class="count-pill">${x.totalAulas}</span></td>
+            <td>${x.media.toFixed(1)}</td>
+            <td>${x.loggedPct.toFixed(0)}%</td>
+            <td>${x.threePct.toFixed(0)}%</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
     <div class="charts-grid">
       <div class="panel">
         <div class="panel-head"><h3>Aulas assistidas por dia — todos os times</h3><span class="hint">período selecionado</span></div>
         <div class="chart-wrap"><canvas id="chart-overview-trend"></canvas></div>
       </div>
       <div class="panel">
-        <div class="panel-head"><h3>Ranking de times</h3><span class="hint">aulas no período</span></div>
+        <div class="panel-head"><h3>Ranking de lideranças</h3><span class="hint">aulas no período</span></div>
         <ul class="rank-list">
           ${teamsRankedByAulas.map((x,i)=>`
             <li class="rank-item">
               <span class="rank-num">${i+1}</span>
-              <span class="rank-name">${x.team.lider}</span>
+              <span class="rank-name">${x.team.lider} <span style="color:var(--text-muted);font-size:10px;">· ${x.team.area}</span></span>
               <span class="rank-bar-track"><span class="rank-bar-fill" style="width:${(x.totalAulas/maxTeamVal*100).toFixed(0)}%"></span></span>
               <span class="rank-value">${x.totalAulas}</span>
             </li>`).join('')}
@@ -1041,24 +1160,24 @@ function renderOverview(container){
 
     <div class="charts-grid">
       <div class="panel">
-        <div class="panel-head"><h3>Ranking de times — % que logou</h3><span class="hint">no período selecionado</span></div>
+        <div class="panel-head"><h3>Ranking de lideranças — % que logou</h3><span class="hint">no período selecionado</span></div>
         <ul class="rank-list">
           ${teamsRankedByLogin.map((x,i)=>`
             <li class="rank-item">
               <span class="rank-num">${i+1}</span>
-              <span class="rank-name">${x.team.lider}</span>
+              <span class="rank-name">${x.team.lider} <span style="color:var(--text-muted);font-size:10px;">· ${x.team.area}</span></span>
               <span class="rank-bar-track"><span class="rank-bar-fill" style="width:${x.loggedPct.toFixed(0)}%"></span></span>
               <span class="rank-value">${x.loggedPct.toFixed(0)}%</span>
             </li>`).join('')}
         </ul>
       </div>
       <div class="panel">
-        <div class="panel-head"><h3>Ranking de times — % assistiu 3+ aulas</h3><span class="hint">no período selecionado</span></div>
+        <div class="panel-head"><h3>Ranking de lideranças — % assistiu 3+ aulas</h3><span class="hint">no período selecionado</span></div>
         <ul class="rank-list">
           ${teamsRankedByThree.map((x,i)=>`
             <li class="rank-item">
               <span class="rank-num">${i+1}</span>
-              <span class="rank-name">${x.team.lider}</span>
+              <span class="rank-name">${x.team.lider} <span style="color:var(--text-muted);font-size:10px;">· ${x.team.area}</span></span>
               <span class="rank-bar-track"><span class="rank-bar-fill" style="width:${x.threePct.toFixed(0)}%"></span></span>
               <span class="rank-value">${x.threePct.toFixed(0)}%</span>
             </li>`).join('')}
@@ -1070,6 +1189,154 @@ function renderOverview(container){
   renderTrendChart('chart-overview-trend', allTeamLessonsFlat());
   renderBarChart('chart-overview-topmembers', topMembers.map(m=>m.nome), topMembers.map(m=>m.total));
   renderDonutChart('chart-overview-donut', loggedTotal, totalMembros-loggedTotal);
+}
+
+function renderArea(container, area){
+  const viewKey = 'area:' + area.slug;
+  const totalMembrosArea = area.leaders.reduce((s,t)=>s+t.membros.length,0);
+  document.getElementById('view-title').textContent = area.area;
+  document.getElementById('view-sub').textContent = `Área · ${area.leaders.length} lideranças · ${totalMembrosArea} membros`;
+
+  let allWrapped = [];
+  area.leaders.forEach(t => t.membros.forEach(m => allWrapped.push({m, team:t})));
+  const visibleWrapped = allWrapped.filter(w => memberSelected(viewKey, w.m.email));
+  const visibleMembers = visibleWrapped.map(w=>w.m);
+  const ind = computeIndicators(visibleMembers);
+
+  const leaderStats = area.leaders.map(t=>{
+    const teamVisible = t.membros.filter(m=>memberSelected(viewKey, m.email));
+    return { team:t, ...computeIndicators(teamVisible) };
+  });
+  const rankedByAulas = [...leaderStats].sort((a,b)=>b.totalAulas-a.totalAulas);
+  const maxVal = Math.max(1, ...rankedByAulas.map(x=>x.totalAulas));
+  const rankedByLogin = [...leaderStats].sort((a,b)=>b.loggedPct-a.loggedPct);
+  const rankedByThree = [...leaderStats].sort((a,b)=>b.threePct-a.threePct);
+
+  let topMembers = visibleWrapped.map(w=>({nome:w.m.nome, lider:w.team.lider, total:filteredLessons(w.m).length}));
+  topMembers.sort((a,b)=>b.total-a.total);
+  topMembers = topMembers.slice(0,8);
+
+  const rankedMembersTable = visibleWrapped.map(w=>({m:w.m, lider:w.team.lider, total:filteredLessons(w.m).length}))
+    .sort((a,b)=>b.total-a.total);
+
+  container.innerHTML = `
+    <div class="team-banner">
+      <div>
+        <h2>${area.area}</h2>
+        <div class="desc">Área · ${area.leaders.length} lideranças neste agrupamento</div>
+      </div>
+      <div class="period-chip">${periodLabel()}</div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-label">Membros no filtro</div><div class="kpi-value">${ind.total}<span> / ${totalMembrosArea}</span></div></div>
+      <div class="kpi-card"><div class="kpi-label">Aulas assistidas no período</div><div class="kpi-value">${ind.totalAulas}</div></div>
+      <div class="kpi-card"><div class="kpi-label">Média de aulas / membro</div><div class="kpi-value">${ind.media.toFixed(1)}</div></div>
+      <div class="kpi-card pct"><div class="kpi-label">% que logou no período</div><div class="kpi-value">${ind.loggedPct.toFixed(0)}%</div><div class="kpi-sub">${ind.logged} de ${ind.total} membros</div></div>
+      <div class="kpi-card pct"><div class="kpi-label">% que assistiu 3+ aulas</div><div class="kpi-value">${ind.threePct.toFixed(0)}%</div><div class="kpi-sub">${ind.three} de ${ind.total} membros</div></div>
+      <div class="kpi-card"><div class="kpi-label">Último acesso registrado</div><div class="kpi-value" style="font-size:18px;">${ind.lastAccess?fmtDateBR(ind.lastAccess):'—'}</div></div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="panel">
+        <div class="panel-head"><h3>Aulas assistidas por dia</h3><span class="hint">período selecionado</span></div>
+        <div class="chart-wrap"><canvas id="chart-area-trend"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Ranking de lideranças na área</h3><span class="hint">aulas no período</span></div>
+        <ul class="rank-list">
+          ${rankedByAulas.map((x,i)=>`
+            <li class="rank-item">
+              <span class="rank-num">${i+1}</span>
+              <span class="rank-name">${x.team.lider}</span>
+              <span class="rank-bar-track"><span class="rank-bar-fill" style="width:${(x.totalAulas/maxVal*100).toFixed(0)}%"></span></span>
+              <span class="rank-value">${x.totalAulas}</span>
+            </li>`).join('')}
+        </ul>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="panel">
+        <div class="panel-head"><h3>Membros mais ativos</h3><span class="hint">top 8 · aulas no período</span></div>
+        <div class="chart-wrap"><canvas id="chart-area-topmembers"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Membros ativos vs. sem consumo</h3><span class="hint">no período selecionado</span></div>
+        <div class="chart-wrap"><canvas id="chart-area-donut"></canvas></div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="panel">
+        <div class="panel-head"><h3>Ranking de lideranças — % que logou</h3><span class="hint">no período selecionado</span></div>
+        <ul class="rank-list">
+          ${rankedByLogin.map((x,i)=>`
+            <li class="rank-item">
+              <span class="rank-num">${i+1}</span>
+              <span class="rank-name">${x.team.lider}</span>
+              <span class="rank-bar-track"><span class="rank-bar-fill" style="width:${x.loggedPct.toFixed(0)}%"></span></span>
+              <span class="rank-value">${x.loggedPct.toFixed(0)}%</span>
+            </li>`).join('')}
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Ranking de lideranças — % assistiu 3+ aulas</h3><span class="hint">no período selecionado</span></div>
+        <ul class="rank-list">
+          ${rankedByThree.map((x,i)=>`
+            <li class="rank-item">
+              <span class="rank-num">${i+1}</span>
+              <span class="rank-name">${x.team.lider}</span>
+              <span class="rank-bar-track"><span class="rank-bar-fill" style="width:${x.threePct.toFixed(0)}%"></span></span>
+              <span class="rank-value">${x.threePct.toFixed(0)}%</span>
+            </li>`).join('')}
+        </ul>
+      </div>
+    </div>
+
+    <div class="panel table-panel">
+      <div class="panel-head">
+        <h3>Membros da área</h3>
+        <span class="hint">clique em um membro para ver as aulas assistidas</span>
+      </div>
+      <div class="tbl-scroll">
+      <table>
+        <thead><tr>
+          <th>Membro</th><th>Liderança</th><th>E-mail</th><th>Aulas no período</th><th>Último acesso</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${rankedMembersTable.map(({m,lider,total})=>{
+            const overallLast = m.ultimoAcesso;
+            const activeInPeriod = total>0;
+            return `<tr class="member-row" data-email="${m.email}" tabindex="0">
+              <td><div class="member-name"><span class="avatar">${initials(m.nome)}</span> <span><span class="status-dot ${activeInPeriod?'active':'inactive'}"></span>${m.nome}</span></div></td>
+              <td>${lider}</td>
+              <td>${m.email}</td>
+              <td><span class="count-pill ${total===0?'zero':''}">${total}</span></td>
+              <td>${overallLast ? fmtDateBR(overallLast) : 'Sem acesso registrado'}</td>
+              <td class="chevron">Ver aulas ›</td>
+            </tr>`;
+          }).join('') || `<tr><td colspan="6"><div class="empty-note">Nenhum membro selecionado no filtro.</div></td></tr>`}
+        </tbody>
+      </table>
+      </div>
+    </div>
+  `;
+
+  const lessonsFlat = [];
+  visibleMembers.forEach(m=> filteredLessons(m).forEach(a=>lessonsFlat.push(a)));
+  renderTrendChart('chart-area-trend', lessonsFlat);
+  renderBarChart('chart-area-topmembers', topMembers.map(m=>m.nome), topMembers.map(m=>m.total));
+  renderDonutChart('chart-area-donut', ind.logged, ind.total-ind.logged);
+
+  container.querySelectorAll('.member-row').forEach(row=>{
+    const email = row.dataset.email;
+    const wrapObj = visibleWrapped.find(w=>w.m.email===email);
+    if(!wrapObj) return;
+    const open = ()=> openModal(wrapObj.team, email);
+    row.addEventListener('click', open);
+    row.addEventListener('keypress', e=>{ if(e.key==='Enter') open(); });
+  });
 }
 
 function computeIndicators(members){
@@ -1112,7 +1379,7 @@ function periodLabel(){
 /* ============ RENDER: TEAM ============ */
 function renderTeam(container, team){
   document.getElementById('view-title').textContent = team.lider;
-  document.getElementById('view-sub').textContent = `Time de ${team.lider} · ${team.membros.length} membros`;
+  document.getElementById('view-sub').textContent = `${team.area} · ${team.membros.length} membros`;
 
   const visibleMembers = team.membros.filter(m=>memberSelected(team.slug, m.email));
   const ind = computeIndicators(visibleMembers);
@@ -1124,7 +1391,7 @@ function renderTeam(container, team){
     <div class="team-banner">
       <div>
         <h2>${team.lider}</h2>
-        <div class="desc">Liderança · ${team.membros.length} membros no time</div>
+        <div class="desc">Liderança · ${team.area} · ${team.membros.length} membros no time</div>
       </div>
       <div class="period-chip">${periodLabel()}</div>
     </div>
@@ -1274,10 +1541,14 @@ function openModal(team, email){
 /* ============ MAIN RENDER ============ */
 function render(){
   const container = document.getElementById('content');
-  if(state.view==='overview' || !teamBySlug[state.view]){
+  if(state.view === 'overview'){
     renderOverview(container);
-  } else {
+  } else if(state.view.startsWith('area:') && areaBySlug[state.view.slice(5)]){
+    renderArea(container, areaBySlug[state.view.slice(5)]);
+  } else if(teamBySlug[state.view]){
     renderTeam(container, teamBySlug[state.view]);
+  } else {
+    renderOverview(container);
   }
 }
 
@@ -1291,8 +1562,24 @@ function buildOverviewPrintPage(){
   const media = totalMembros ? (totalAulas/totalMembros).toFixed(1) : '0.0';
   const loggedPct = totalMembros ? (loggedTotal/totalMembros*100) : 0;
   const threePct = totalMembros ? (threeTotal/totalMembros*100) : 0;
+
+  const areaStats = RAW_AREAS.map(a=>{
+    let members=[]; a.leaders.forEach(t=>{ members = members.concat(t.membros); });
+    return { area:a, ...computeIndicators(members) };
+  }).sort((a,b)=>b.totalAulas-a.totalAulas);
+  const areaRows = areaStats.map(x=>`
+    <tr>
+      <td>${x.area.area}</td>
+      <td>${x.area.leaders.length}</td>
+      <td>${x.total}</td>
+      <td>${x.totalAulas}</td>
+      <td>${x.loggedPct.toFixed(0)}%</td>
+      <td>${x.threePct.toFixed(0)}%</td>
+    </tr>`).join('');
+
   const rows = [...stats].sort((a,b)=>b.totalAulas-a.totalAulas).map(x=>`
     <tr>
+      <td>${x.team.area}</td>
       <td>${x.team.lider}</td>
       <td>${x.total}</td>
       <td>${x.totalAulas}</td>
@@ -1300,8 +1587,8 @@ function buildOverviewPrintPage(){
       <td>${x.threePct.toFixed(0)}%</td>
     </tr>`).join('');
   return `<section class="print-page">
-    <div class="print-title">PipeLovers × Redarbor — Visão geral (todos os times)</div>
-    <div class="print-sub">Período: ${periodLabel()} · ${RAW_TEAMS.length} lideranças · ${totalMembros} membros · Gerado em ${new Date().toLocaleString('pt-BR')}</div>
+    <div class="print-title">PipeLovers × Redarbor — Visão geral (todas as áreas e lideranças)</div>
+    <div class="print-sub">Período: ${periodLabel()} · ${RAW_AREAS.length} áreas · ${RAW_TEAMS.length} lideranças · ${totalMembros} membros · Gerado em ${new Date().toLocaleString('pt-BR')}</div>
     <div class="print-kpis">
       <div class="print-kpi"><b>${totalAulas}</b><span>Aulas no período</span></div>
       <div class="print-kpi"><b>${media}</b><span>Média por membro</span></div>
@@ -1309,8 +1596,41 @@ function buildOverviewPrintPage(){
       <div class="print-kpi"><b>${threePct.toFixed(0)}%</b><span>Assistiram 3+ aulas</span></div>
     </div>
     <table class="print-table">
-      <thead><tr><th>Liderança</th><th>Membros</th><th>Aulas no período</th><th>% que logou</th><th>% assistiu 3+ aulas</th></tr></thead>
+      <thead><tr><th>Área</th><th>Lideranças</th><th>Membros</th><th>Aulas no período</th><th>% que logou</th><th>% assistiu 3+ aulas</th></tr></thead>
+      <tbody>${areaRows}</tbody>
+    </table>
+    <table class="print-table" style="margin-top:14px;">
+      <thead><tr><th>Área</th><th>Liderança</th><th>Membros</th><th>Aulas no período</th><th>% que logou</th><th>% assistiu 3+ aulas</th></tr></thead>
       <tbody>${rows}</tbody>
+    </table>
+  </section>`;
+}
+
+function buildAreaPrintPage(area){
+  let members=[]; area.leaders.forEach(t=>{ members = members.concat(t.membros); });
+  const ind = computeIndicators(members);
+  const leaderRows = area.leaders.map(t=>{
+    const li = computeIndicators(t.membros);
+    return `<tr>
+      <td>${t.lider}</td>
+      <td>${li.total}</td>
+      <td>${li.totalAulas}</td>
+      <td>${li.loggedPct.toFixed(0)}%</td>
+      <td>${li.threePct.toFixed(0)}%</td>
+    </tr>`;
+  }).join('');
+  return `<section class="print-page">
+    <div class="print-title">PipeLovers × Redarbor — Área: ${area.area}</div>
+    <div class="print-sub">Período: ${periodLabel()} · ${area.leaders.length} lideranças · ${members.length} membros · Gerado em ${new Date().toLocaleString('pt-BR')}</div>
+    <div class="print-kpis">
+      <div class="print-kpi"><b>${ind.totalAulas}</b><span>Aulas no período</span></div>
+      <div class="print-kpi"><b>${ind.media.toFixed(1)}</b><span>Média por membro</span></div>
+      <div class="print-kpi"><b>${ind.loggedPct.toFixed(0)}%</b><span>Logaram no período</span></div>
+      <div class="print-kpi"><b>${ind.threePct.toFixed(0)}%</b><span>Assistiram 3+ aulas</span></div>
+    </div>
+    <table class="print-table">
+      <thead><tr><th>Liderança</th><th>Membros</th><th>Aulas no período</th><th>% que logou</th><th>% assistiu 3+ aulas</th></tr></thead>
+      <tbody>${leaderRows}</tbody>
     </table>
   </section>`;
 }
@@ -1328,7 +1648,7 @@ function buildTeamPrintPage(team){
   }).join('');
   return `<section class="print-page">
     <div class="print-title">PipeLovers × Redarbor — ${team.lider}</div>
-    <div class="print-sub">Período: ${periodLabel()} · ${team.membros.length} membros no time · Gerado em ${new Date().toLocaleString('pt-BR')}</div>
+    <div class="print-sub">Área: ${team.area} · Período: ${periodLabel()} · ${team.membros.length} membros no time · Gerado em ${new Date().toLocaleString('pt-BR')}</div>
     <div class="print-kpis">
       <div class="print-kpi"><b>${ind.totalAulas}</b><span>Aulas no período</span></div>
       <div class="print-kpi"><b>${ind.media.toFixed(1)}</b><span>Média por membro</span></div>
@@ -1347,7 +1667,16 @@ function buildPrintDoc(scope){
   let html = '';
   if(scope === 'all'){
     html += buildOverviewPrintPage();
-    RAW_TEAMS.forEach(team => { html += buildTeamPrintPage(team); });
+    RAW_AREAS.forEach(area=>{
+      html += buildAreaPrintPage(area);
+      area.leaders.forEach(team => { html += buildTeamPrintPage(team); });
+    });
+  } else if(scope.startsWith('area:')){
+    const area = areaBySlug[scope.slice(5)];
+    if(area){
+      html += buildAreaPrintPage(area);
+      area.leaders.forEach(team => { html += buildTeamPrintPage(team); });
+    }
   } else {
     const team = teamBySlug[scope];
     if(team) html += buildTeamPrintPage(team);
@@ -1371,10 +1700,10 @@ function csvRowsForTeam(team){
     const three = les.length>=3 ? 'Sim' : 'Não';
     const ultimo = m.ultimoAcesso ? fmtDateBR(m.ultimoAcesso) : 'Sem acesso registrado';
     if(les.length===0){
-      rows.push([team.lider, m.nome, m.email, 0, ultimo, logged, three, '', '']);
+      rows.push([team.area, team.lider, m.nome, m.email, 0, ultimo, logged, three, '', '']);
     } else {
       les.forEach(a=>{
-        rows.push([team.lider, m.nome, m.email, les.length, ultimo, logged, three, a.titulo, fmtDateBR(a.iso)]);
+        rows.push([team.area, team.lider, m.nome, m.email, les.length, ultimo, logged, three, a.titulo, fmtDateBR(a.iso)]);
       });
     }
   });
@@ -1382,10 +1711,13 @@ function csvRowsForTeam(team){
 }
 
 function buildCsvContent(scope){
-  const header = ['Lideranca','Nome','Email','Aulas assistidas no periodo','Ultimo acesso','Logou no periodo','Assistiu 3+ aulas no periodo','Aula assistida','Data da aula'];
+  const header = ['Area','Lideranca','Nome','Email','Aulas assistidas no periodo','Ultimo acesso','Logou no periodo','Assistiu 3+ aulas no periodo','Aula assistida','Data da aula'];
   let rows = [];
   if(scope === 'all'){
     RAW_TEAMS.forEach(t => { rows = rows.concat(csvRowsForTeam(t)); });
+  } else if(scope.startsWith('area:')){
+    const area = areaBySlug[scope.slice(5)];
+    if(area) area.leaders.forEach(t => { rows = rows.concat(csvRowsForTeam(t)); });
   } else {
     const team = teamBySlug[scope];
     if(team) rows = csvRowsForTeam(team);
@@ -1399,7 +1731,7 @@ function downloadCsv(scope){
   const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  const scopeLabel = scope === 'all' ? 'todos-os-times' : scope;
+  const scopeLabel = scope === 'all' ? 'todos-os-times' : scope.replace(':', '-');
   const stamp = new Date().toISOString().slice(0,10);
   a.href = url;
   a.download = `consumo_${scopeLabel}_${stamp}.csv`;
@@ -1417,12 +1749,24 @@ function menuItemHtml(id, title, desc, icon){
 function renderExportMenu(){
   const panel = document.getElementById('export-dropdown-panel');
   const currentTeam = teamBySlug[state.view];
+  const currentArea = state.view.startsWith('area:') ? areaBySlug[state.view.slice(5)] : null;
   let html = '';
 
-  if(state.locked){
+  if(state.lockType === 'leader'){
     html += `<div class="menu-section-label">Meu time</div>`;
     html += menuItemHtml('export-pdf-team','PDF — meu time', currentTeam ? currentTeam.lider : '', '📄');
     html += menuItemHtml('export-csv-team','CSV — dados de consumo do meu time', currentTeam ? currentTeam.lider : '', '⭳');
+  } else if(state.lockType === 'area'){
+    const lockedArea = areaBySlug[state.lockAreaSlug];
+    html += `<div class="menu-section-label">Minha área</div>`;
+    html += menuItemHtml('export-pdf-area','PDF — minha área (todas as lideranças)', lockedArea ? lockedArea.area : '', '📄');
+    html += menuItemHtml('export-csv-area','CSV — dados de consumo da minha área', lockedArea ? lockedArea.area : '', '⭳');
+    if(currentTeam){
+      html += `<div class="menu-divider"></div>`;
+      html += `<div class="menu-section-label">Time atual</div>`;
+      html += menuItemHtml('export-pdf-team','PDF — este time', currentTeam.lider, '📄');
+      html += menuItemHtml('export-csv-team','CSV — este time', currentTeam.lider, '⭳');
+    }
   } else {
     if(currentTeam){
       html += `<div class="menu-section-label">Time atual</div>`;
@@ -1430,20 +1774,28 @@ function renderExportMenu(){
       html += menuItemHtml('export-csv-team','CSV — este time', currentTeam.lider, '⭳');
       html += `<div class="menu-divider"></div>`;
     }
-    html += `<div class="menu-section-label">Todos os times</div>`;
-    html += menuItemHtml('export-pdf-all','PDF — todos os times', `${RAW_TEAMS.length} lideranças`, '📄');
-    html += menuItemHtml('export-csv-all','CSV — todos os times', 'dados de consumo completos', '⭳');
+    if(currentArea){
+      html += `<div class="menu-section-label">Área atual</div>`;
+      html += menuItemHtml('export-pdf-area','PDF — esta área (todas as lideranças)', currentArea.area, '📄');
+      html += menuItemHtml('export-csv-area','CSV — esta área', currentArea.area, '⭳');
+      html += `<div class="menu-divider"></div>`;
+    }
+    html += `<div class="menu-section-label">Tudo (todas as áreas e lideranças)</div>`;
+    html += menuItemHtml('export-pdf-all','PDF — geral', `${RAW_AREAS.length} áreas · ${RAW_TEAMS.length} lideranças`, '📄');
+    html += menuItemHtml('export-csv-all','CSV — geral', 'dados de consumo completos', '⭳');
   }
   panel.innerHTML = html;
 
-  const btnPdfTeam = document.getElementById('export-pdf-team');
-  if(btnPdfTeam) btnPdfTeam.addEventListener('click', ()=>{ panel.classList.remove('open'); buildPrintDoc(state.view); window.print(); });
-  const btnCsvTeam = document.getElementById('export-csv-team');
-  if(btnCsvTeam) btnCsvTeam.addEventListener('click', ()=>{ panel.classList.remove('open'); downloadCsv(state.view); });
-  const btnPdfAll = document.getElementById('export-pdf-all');
-  if(btnPdfAll) btnPdfAll.addEventListener('click', ()=>{ panel.classList.remove('open'); buildPrintDoc('all'); window.print(); });
-  const btnCsvAll = document.getElementById('export-csv-all');
-  if(btnCsvAll) btnCsvAll.addEventListener('click', ()=>{ panel.classList.remove('open'); downloadCsv('all'); });
+  const bind = (id, fn) => { const el = document.getElementById(id); if(el) el.addEventListener('click', fn); };
+  const areaScopeForExport = state.lockType === 'area'
+    ? ('area:' + state.lockAreaSlug)
+    : (currentArea ? ('area:' + currentArea.slug) : state.view);
+  bind('export-pdf-team', ()=>{ panel.classList.remove('open'); buildPrintDoc(state.view); window.print(); });
+  bind('export-csv-team', ()=>{ panel.classList.remove('open'); downloadCsv(state.view); });
+  bind('export-pdf-area', ()=>{ panel.classList.remove('open'); buildPrintDoc(areaScopeForExport); window.print(); });
+  bind('export-csv-area', ()=>{ panel.classList.remove('open'); downloadCsv(areaScopeForExport); });
+  bind('export-pdf-all', ()=>{ panel.classList.remove('open'); buildPrintDoc('all'); window.print(); });
+  bind('export-csv-all', ()=>{ panel.classList.remove('open'); downloadCsv('all'); });
 }
 
 function setupExportDropdown(){
@@ -1463,14 +1815,20 @@ function setupExportDropdown(){
 function renderLinksMenu(){
   const panel = document.getElementById('links-dropdown-panel');
   const base = window.location.origin + window.location.pathname;
-  let html = `<div class="menu-section-label">Link geral (todas as equipes)</div>
-    <div class="link-row"><span class="lr-name">Visão completa / diretoria</span><button type="button" data-link="${base}">Copiar</button></div>
-    <div class="menu-divider"></div>
-    <div class="menu-section-label">Link exclusivo por liderança</div>`;
-  RAW_TEAMS.forEach(t=>{
-    const link = `${base}?time=${encodeURIComponent(t.slug)}`;
-    html += `<div class="link-row"><span class="lr-name">${t.lider}</span><button type="button" data-link="${link}">Copiar</button></div>`;
+  let html = `<div class="menu-section-label">Link geral (todas as áreas e lideranças)</div>
+    <div class="link-row"><span class="lr-name">Visão completa / diretoria</span><button type="button" data-link="${base}">Copiar</button></div>`;
+
+  RAW_AREAS.forEach(area=>{
+    const areaLink = `${base}?area=${encodeURIComponent(area.slug)}`;
+    html += `<div class="menu-divider"></div>
+      <div class="menu-section-label">Área: ${area.area}</div>
+      <div class="link-row"><span class="lr-name">🔗 Todas as lideranças desta área</span><button type="button" data-link="${areaLink}">Copiar</button></div>`;
+    area.leaders.forEach(t=>{
+      const link = `${base}?time=${encodeURIComponent(t.slug)}`;
+      html += `<div class="link-row"><span class="lr-name">${t.lider}</span><button type="button" data-link="${link}">Copiar</button></div>`;
+    });
   });
+
   panel.innerHTML = html;
   panel.querySelectorAll('button[data-link]').forEach(b=>{
     b.addEventListener('click', ()=>{
@@ -1504,34 +1862,45 @@ function setupLinksDropdown(){
   });
 }
 
-/* ============ MODO TRAVADO (link exclusivo de liderança) ============ */
+/* ============ MODO TRAVADO (link exclusivo de liderança ou de área) ============ */
 function applyAccessMode(){
-  const slug = getLockedTeamSlugFromUrl();
+  const { time: timeSlug, area: areaSlug } = getUrlLockParams();
   const appRoot = document.getElementById('app-root');
   const linksWrap = document.getElementById('links-dropdown-wrap');
   const chip = document.getElementById('locked-chip');
 
-  if(slug && teamBySlug[slug]){
-    state.locked = true;
-    state.lockedInvalid = false;
-    state.view = slug;
-    appRoot.classList.add('locked');
-    if(linksWrap) linksWrap.style.display = 'none';
-    if(chip){ chip.style.display = 'inline-block'; chip.textContent = `🔒 ${teamBySlug[slug].lider}`; }
-  } else if(slug && !teamBySlug[slug]){
-    // link com time inválido/renomeado: cai para visão geral, mas avisa
-    state.locked = false;
-    state.lockedInvalid = true;
-    appRoot.classList.remove('locked');
-    if(linksWrap) linksWrap.style.display = 'inline-flex';
-    if(chip) chip.style.display = 'none';
-  } else {
-    state.locked = false;
-    state.lockedInvalid = false;
-    appRoot.classList.remove('locked');
-    if(linksWrap) linksWrap.style.display = 'inline-flex';
-    if(chip) chip.style.display = 'none';
+  state.locked = false;
+  state.lockType = 'none';
+  state.lockAreaSlug = null;
+  state.lockedInvalid = false;
+  appRoot.classList.remove('locked');
+  appRoot.classList.remove('area-locked');
+
+  if(timeSlug){
+    if(teamBySlug[timeSlug]){
+      state.locked = true;
+      state.lockType = 'leader';
+      state.view = timeSlug;
+      appRoot.classList.add('locked');
+      if(chip){ chip.style.display = 'inline-block'; chip.textContent = `🔒 ${teamBySlug[timeSlug].lider}`; }
+    } else {
+      state.lockedInvalid = true;
+    }
+  } else if(areaSlug){
+    if(areaBySlug[areaSlug]){
+      state.locked = true;
+      state.lockType = 'area';
+      state.lockAreaSlug = areaSlug;
+      state.view = 'area:' + areaSlug;
+      appRoot.classList.add('area-locked');
+      if(chip){ chip.style.display = 'inline-block'; chip.textContent = `🔒 Área ${areaBySlug[areaSlug].area}`; }
+    } else {
+      state.lockedInvalid = true;
+    }
   }
+
+  if(!state.locked && chip) chip.style.display = 'none';
+  if(linksWrap) linksWrap.style.display = state.locked ? 'none' : 'inline-flex';
 }
 
 /* ============ LOADING / ERROR UI ============ */
@@ -1551,7 +1920,7 @@ function renderDataStatus(result){
     extra += `<span title="${result.unmatched.join(', ')}">⚠ ${result.unmatched.length} e-mail(s) do consumo não encontrados na lista de membros</span>`;
   }
   if(state.lockedInvalid){
-    extra += `<span style="color:var(--warn);">⚠ Link de liderança não encontrado — mostrando a visão geral.</span>`;
+    extra += `<span style="color:var(--warn);">⚠ Link de liderança/área não encontrado — mostrando a visão geral.</span>`;
   }
   el.innerHTML = `
     <span><span class="dot"></span>Dados carregados às ${time}</span>
@@ -1568,6 +1937,7 @@ async function init(){
   try {
     const result = await loadAllData();
     RAW_TEAMS = result.teams;
+    RAW_AREAS = result.areas;
     deriveGlobals();
     applyAccessMode();
     renderDataStatus(result);
