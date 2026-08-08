@@ -1,0 +1,46 @@
+name: Gerar manifest da pasta data/
+
+# Roda automaticamente sempre que algo muda dentro de data/
+# (ex.: você sobe um novo redarbor_AAAA-MM-DD.csv) e também permite rodar manualmente.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/**'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Gerar data/manifest.json com a lista de arquivos CSV
+        run: |
+          cd data
+          echo "[" > manifest.json
+          first=true
+          for f in *.csv; do
+            [ -e "$f" ] || continue
+            if [ "$first" = true ]; then first=false; else echo "," >> manifest.json; fi
+            printf '  {"name": "%s"}' "$f" >> manifest.json
+          done
+          echo "" >> manifest.json
+          echo "]" >> manifest.json
+          cat manifest.json
+
+      - name: Commitar o manifest.json (se algo mudou)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/manifest.json
+          if git diff --cached --quiet; then
+            echo "Nada mudou no manifest, não é preciso commitar."
+          else
+            git commit -m "Atualiza data/manifest.json automaticamente"
+            git push
+          fi
