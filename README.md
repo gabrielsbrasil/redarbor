@@ -1,108 +1,84 @@
-[README.md](https://github.com/user-attachments/files/30313072/README.md)
-# Painel PipeLovers × Redarbor — v3 (Áreas + Liderança)
-
-Esta atualização reestrutura o painel em torno de **Área → Liderança**,
-seguindo a nova planilha de membros (`membros.csv`, com a coluna `AREA`:
-GROWTH B2B PYMES e GROWTH B2B GRANDES EMPRESAS). Todo o resto do sistema
-(busca dinâmica dos CSVs no GitHub, filtros de data/mês, exportação em
-PDF/CSV, links exclusivos) continua funcionando do mesmo jeito, só que agora
-com um nível a mais de agrupamento.
+[README.md](https://github.com/user-attachments/files/30855137/README.md)
+# Painel PipeLovers × Redarbor — v5 (com indicador de PDI)
 
 ## O que mudou nesta versão
 
-### 1. Fonte de dados: `membros.csv` (substitui o CSV de membros anterior)
-A nova planilha de membros tem 4 colunas:
+Foi adicionado o indicador **Progresso do PDI** (Plano de Desenvolvimento Individual) em todo o painel:
+geral, por área, por gerência, por liderança e por membro.
 
-`AREA, LÍDER/GESTÃO, NOME COMPLETO, E-MAIL DO MEMBRO`
+- **Como funciona**: cada membro que tem um PDI (arquivo em PDF gerado pela PipeLovers) tem uma lista de
+  aulas recomendadas. O painel compara essa lista com as aulas que aparecem na coluna "Conteúdo" do
+  `redarbor*.csv` (o mesmo CSV de consumo que você já sobe todo dia) e calcula quantas dessas aulas
+  específicas do PDI já foram assistidas.
+- **Quem não tem PDI atribuído** simplesmente não aparece nos cálculos de progresso (não conta como "0%"
+  — aparece como "Sem PDI"), para não distorcer as médias da liderança/gerência/área.
+- Isso aparece:
+  - Como 2 novos cards de KPI ("Progresso médio do PDI" e "% que concluiu o PDI") em toda tela.
+  - Como coluna nas tabelas comparativas (por área / por gerência) e na tabela de membros.
+  - Como uma seção com barra de progresso e checklist de aulas dentro do modal de cada membro.
+  - Nas exportações em CSV (colunas extras) e PDF (KPIs extras + coluna extra nas tabelas).
 
-Isso substitui o antigo `lista_membros_por_lideranca.csv` — o painel agora
-espera o arquivo em `data/membros.csv` (o bloco `DASHBOARD_CONFIG` já vem
-atualizado com esse caminho). O `redarbor.csv` de consumo continua igual,
-sem mudanças de formato.
+## Arquivo novo: `data/pdi.csv`
 
-### 2. Menu lateral em árvore: Área → Liderança
-A barra lateral agora mostra:
-- **Visão geral** (tudo: todas as áreas e lideranças)
-- **GROWTH B2B GRANDES EMPRESAS** (aba da área, com o rollup de todas as
-  lideranças dessa área) → e, abaixo, cada liderança da área
-- **GROWTH B2B PYMES** (mesma lógica)
+Formato (2 colunas, uma linha por aula do PDI de cada pessoa):
 
-Clicar no nome da área abre uma visão consolidada daquela área (KPIs,
-ranking das lideranças dentro dela, gráfico de consumo, tabela com todos os
-membros da área e a liderança de cada um). Clicar numa liderança abre a
-visão individual daquele time, como antes.
+```
+Email,Aula PDI
+fulano@empresa.com,Nome exato da aula 1
+fulano@empresa.com,Nome exato da aula 2
+```
 
-### 3. Indicadores agora em 3 níveis
-`% que logou` e `% que assistiu 3+ aulas` continuam sendo calculados sobre o
-período filtrado, mas agora em três granularidades:
-- **Geral** (toda a Redarbor) — na Visão geral, incluindo uma tabela
-  comparativa entre as 2 áreas.
-- **Por área** — na aba de cada área, com ranking das lideranças daquela
-  área nesses dois indicadores.
-- **Por liderança** — na aba de cada time, como já era.
+- O **nome da aula** precisa ser escrito exatamente como aparece na coluna "Conteúdo" do `redarbor*.csv`
+  (o painel ignora maiúsculas/minúsculas, acentos e espaços extras na comparação, mas o texto em si
+  precisa ser o mesmo curso).
+- Quem não tiver nenhuma linha nesse arquivo é tratado como "sem PDI atribuído".
 
-### 4. Exportar PDF e CSV também por área
-O menu **"⭳ Exportar"** ganhou uma camada extra:
-- Na aba de uma **área**: PDF/CSV da área inteira (todas as suas
-  lideranças) + a opção "geral" (todas as áreas).
-- Na aba de uma **liderança**: PDF/CSV deste time + da área a que ele
-  pertence + geral.
-- O CSV agora tem a coluna **Área** além de Liderança, Nome, Email, aulas,
-  último acesso etc. — uma linha por aula assistida, cobrindo geral, por
-  área ou por liderança conforme o que você exportar.
-- O PDF "geral" agora traz: 1 página de resumo com comparativo entre áreas
-  → 1 página de resumo por área → 1 página por liderança dentro dela.
+**Este arquivo já vem pronto** com o progresso de 136 pessoas, extraído diretamente dos PDFs de PDI que
+estavam na pasta do Google Drive que você compartilhou. Não é preciso gerar nada manualmente agora.
 
-### 5. Três tipos de link para compartilhar
-| Link | O que mostra | Quem deve receber |
-|---|---|---|
-| **Geral** (sem parâmetro) | Todas as áreas e lideranças, indicadores gerais, exportação completa | Diretoria / visão executiva |
-| `?area=<slug>` | Só aquela área: rollup da área + todas as lideranças **dela** (as outras áreas ficam completamente escondidas do menu) | Gestor(a) responsável pela área inteira |
-| `?time=<slug>` | Só aquela liderança, sem menu lateral | Cada líder individual — só vê o próprio time |
+### Como manter isso atualizado no futuro
 
-Clique em **"🔗 Links por liderança"** no topo (visível apenas na visão
-geral/admin) para ver a lista com os 3 tipos de link e um botão de copiar
-para cada — inclui o link de cada uma das 2 áreas e das 15 lideranças.
+O indicador de progresso do PDI **atualiza sozinho** toda vez que você sobe um novo `redarbor_AAAA-MM-DD.csv`
+— porque a comparação é feita em tempo real contra o `pdi.csv`, não precisa reprocessar nada.
 
-**Confirmei em teste**: acessando pelo link de uma liderança específica, o
-menu lateral fica completamente oculto e só os dados daquele time aparecem —
-não há como ver as outras lideranças ou áreas por essa rota. O mesmo vale
-para o link de área (só a área liberada aparece no menu; a outra fica
-totalmente escondida).
+O que só muda manualmente é a **lista de aulas de cada PDI** (o `pdi.csv` em si), e isso só precisa ser
+atualizado quando:
+- uma pessoa nova entra e ganha um PDI novo, ou
+- o PDI de alguém é reformulado (aulas trocadas).
 
-> Vale repetir o aviso da entrega anterior: como o repositório GitHub
-> precisa ser público para o painel funcionar sem um servidor por trás, esse
-> controle de acesso por link é uma organização de navegação, não uma
-> segurança à prova de manipulação técnica direta da URL/API do GitHub. Para
-> controle de acesso real seria necessário um backend com autenticação.
+Nesses casos, me envie o link do PDF do PDI (ou da pasta do Drive com os PDIs) e eu gero as linhas novas
+para você adicionar ao `pdi.csv`.
 
-## Arquivos deste pacote
+## Onde subir os arquivos no GitHub
 
-| Arquivo | Onde vai no repositório |
-|---|---|
-| `index.html` | Raiz do repositório (substitui o `index.html` atual) |
-| `data/membros.csv` | Nova fonte de membros — sobe em `data/`, **no lugar** do antigo `lista_membros_por_lideranca.csv` |
-| `data/redarbor_2026-07-23.csv` | Carga de consumo mais recente enviada — some com as demais que você já tem em `data/` |
+Estrutura final esperada no repositório (substitui a v4 anterior):
 
-### Passo a passo para atualizar no GitHub
-1. Suba o novo `data/membros.csv` na pasta `data/` do repositório (pode
-   apagar o `lista_membros_por_lideranca.csv` antigo, ele não é mais usado).
-2. Suba o novo `data/redarbor_2026-07-23.csv` — mantenha os arquivos
-   `redarbor*.csv` anteriores, o painel soma todos automaticamente.
-3. Substitua o `index.html` da raiz pelo novo.
-4. Confira que o bloco `DASHBOARD_CONFIG` no topo do `index.html` está com
-   `owner`/`repo`/`branch` corretos (os mesmos que você já tinha
-   configurado — copie o valor de `repo` do arquivo antigo se precisar).
-5. Commit direto na branch `main`. O GitHub Pages atualiza em ~1 minuto.
+```
+seu-repositorio/
+├── index.html                          ← substitui o index.html atual (raiz do repo)
+└── data/
+    ├── membros.csv                     ← igual ao que já está lá (não muda)
+    ├── redarbor_2026-08-06.csv         ← igual ao que já está lá (não muda)
+    ├── redarbor_AAAA-MM-DD.csv         ← seus uploads diários continuam normalmente
+    └── pdi.csv                         ← NOVO — sobe uma vez, na pasta data/
+```
 
-Se o CSV de membros mudar de novo no futuro (nova área, novo líder, membro
-trocando de time), basta subir uma nova versão de `data/membros.csv` — o
-painel reconstrói toda a árvore Área → Liderança sozinho a cada carregamento.
+Passo a passo:
+1. No GitHub, abra a pasta `data/` do repositório.
+2. "Add file → Upload files" e suba o `pdi.csv` (deste pacote) dentro de `data/`.
+3. Substitua o `index.html` da raiz do repositório pelo `index.html` deste pacote.
+4. Nada mais muda no seu fluxo diário — continue subindo `redarbor_AAAA-MM-DD.csv` em `data/` normalmente.
 
-## O que continua igual
-- Busca os dados direto do GitHub a cada carregamento (ou botão "⟳ Atualizar
-  dados").
-- Filtro por intervalo de datas / mês e por membro (multi-seleção),
-  respeitado em todos os níveis (geral, área, liderança).
-- Clique no membro → histórico completo de aulas assistidas.
-- Visual dark blue da PipeLovers, tipografia Poppins.
+Se por qualquer motivo o `data/pdi.csv` não for encontrado no repositório, o painel continua funcionando
+normalmente (só não mostra os cards e colunas de PDI, com um aviso discreto no rodapé do cabeçalho).
+
+## Testado e validado
+
+- Cálculo de progresso do PDI por membro, liderança, gerência, área e geral.
+- Coluna de PDI nas tabelas comparativas e na tabela de membros.
+- Seção de PDI (barra de progresso + checklist) dentro do modal do membro.
+- Exportação CSV com as colunas: `Possui PDI`, `Total de aulas do PDI`, `Aulas do PDI concluidas`, `% do PDI concluido`.
+- Exportação PDF: 23 páginas geradas corretamente (1 visão geral + 2 áreas + 5 gerências + 15 lideranças),
+  todas com os KPIs de PDI.
+- Todo o restante do painel (filtros, links de acesso por área/gerência/liderança, navegação) continua
+  funcionando exatamente como na v4 — nada foi removido, só adicionado.
