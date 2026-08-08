@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <style>
 :root{
   --dark-blue:#0f052e;
@@ -26,7 +26,7 @@
   --danger:#f2455c;
   --radius:14px;
   --radius-sm:9px;
-  --sidebar-w:264px;
+  --sidebar-w:274px;
   --header-h:76px;
 }
 *{box-sizing:border-box;}
@@ -40,13 +40,6 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 h1,h2,h3,h4{font-weight:500;margin:0;}
-.eyebrow{
-  font-weight:600;
-  letter-spacing:.14em;
-  text-transform:uppercase;
-  font-size:11px;
-  color:var(--light-blue-2);
-}
 ::selection{background:var(--light-blue);color:#fff;}
 a{color:var(--light-blue-2);}
 button{font-family:inherit;}
@@ -59,7 +52,6 @@ button{font-family:inherit;}
 .app.locked .sidebar{display:none;}
 .app.locked .menu-toggle{display:none !important;}
 
-/* Sidebar */
 .sidebar{
   width:var(--sidebar-w);
   flex-shrink:0;
@@ -106,38 +98,41 @@ button{font-family:inherit;}
   border:1px solid var(--border);
 }
 .nav-item.active .nav-avatar{background:var(--light-blue);color:#fff;border-color:transparent;}
-.nav-area-block{margin-top:6px;}
-.nav-area-item{
-  display:flex;align-items:center;gap:9px;
-  padding:9px 10px;border-radius:9px;cursor:pointer;
-  color:#fff;font-size:12.5px;font-weight:500;
-  text-transform:uppercase;letter-spacing:.03em;
-  border:1px solid transparent;
-}
-.nav-area-item:hover{background:rgba(255,255,255,.05);}
-.nav-area-item.active{
-  background:linear-gradient(90deg, rgba(38,110,242,.26), rgba(38,110,242,.05));
-  border-color:rgba(38,110,242,.4);
-}
-.nav-area-icon{
-  width:22px;height:22px;border-radius:6px;flex-shrink:0;
-  background:rgba(38,110,242,.16);color:var(--light-blue-2);
-  display:flex;align-items:center;justify-content:center;font-size:11px;
-}
-.nav-leaders{list-style:none;margin:2px 0 4px 14px;padding:0 0 0 10px;
-  border-left:1px solid var(--border);display:flex;flex-direction:column;gap:1px;}
-.nav-leaders .nav-item{font-size:12.5px;padding:7px 9px;}
-.nav-leaders .nav-avatar{width:20px;height:20px;font-size:9px;}
 .nav-count{
   margin-left:auto;font-size:10.5px;color:var(--text-muted);
   background:rgba(255,255,255,.05);padding:1px 7px;border-radius:20px;
 }
 .nav-item.active .nav-count{color:var(--light-blue-2);background:rgba(38,110,242,.15);}
 
+.nav-area-block{margin-top:6px;}
+.nav-area-item, .nav-gerencia-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 10px;border-radius:9px;cursor:pointer;
+  color:#fff;font-weight:500;
+  border:1px solid transparent;
+}
+.nav-area-item{font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;}
+.nav-gerencia-item{font-size:12px;}
+.nav-area-item:hover, .nav-gerencia-item:hover{background:rgba(255,255,255,.05);}
+.nav-area-item.active, .nav-gerencia-item.active{
+  background:linear-gradient(90deg, rgba(38,110,242,.26), rgba(38,110,242,.05));
+  border-color:rgba(38,110,242,.4);
+}
+.nav-area-icon, .nav-gerencia-icon{
+  width:22px;height:22px;border-radius:6px;flex-shrink:0;
+  background:rgba(38,110,242,.16);color:var(--light-blue-2);
+  display:flex;align-items:center;justify-content:center;font-size:11px;
+}
+.nav-gerencia-icon{width:19px;height:19px;font-size:10px;background:rgba(255,255,255,.06);color:var(--text-secondary);}
+.nav-sublevel{list-style:none;margin:2px 0 4px 14px;padding:0 0 0 10px;
+  border-left:1px solid var(--border);display:flex;flex-direction:column;gap:1px;}
+.nav-sublevel .nav-item{font-size:12.5px;padding:7px 9px;}
+.nav-sublevel .nav-avatar{width:20px;height:20px;font-size:9px;}
+.nav-sublevel .nav-sublevel{margin-left:10px;}
+
 .sidebar-foot{margin-top:24px;padding:12px 10px;border-top:1px solid var(--border);}
 .sidebar-foot p{font-size:10.5px;color:var(--text-muted);line-height:1.5;margin:0;}
 
-/* Main */
 .main{flex:1;min-width:0;}
 .header{
   position:sticky;top:0;z-index:20;
@@ -170,20 +165,17 @@ input[type=date]:focus, select:focus, .dropdown-btn:focus{border-color:var(--lig
   box-shadow:0 6px 18px -6px rgba(38,110,242,.7);
 }
 .btn:hover{background:#3a80f5;transform:translateY(-1px);}
-.btn.ghost{
-  background:transparent;border:1px solid var(--border);color:var(--text-secondary);
-  box-shadow:none;
-}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text-secondary);box-shadow:none;}
 .btn.ghost:hover{border-color:var(--light-blue);color:#fff;background:rgba(38,110,242,.08);}
 .btn:focus-visible, .nav-item:focus-visible, select:focus-visible, .dropdown-btn:focus-visible, .chk-row:focus-visible, .member-row:focus-visible{
   outline:2px solid var(--light-blue-2);outline-offset:2px;
 }
 
-.member-dropdown{position:relative;}
-.dropdown-btn{cursor:pointer;display:flex;align-items:center;gap:8px;min-width:170px;justify-content:space-between;}
+.multi-dropdown{position:relative;}
+.dropdown-btn{cursor:pointer;display:flex;align-items:center;gap:8px;min-width:150px;justify-content:space-between;}
 .dropdown-panel{
   position:absolute;top:calc(100% + 6px);right:0;z-index:30;
-  width:260px;max-height:320px;overflow-y:auto;
+  width:270px;max-height:340px;overflow-y:auto;
   background:var(--panel-2);border:1px solid var(--border);
   border-radius:11px;padding:10px;
   box-shadow:0 20px 40px -12px rgba(0,0,0,.6);
@@ -200,181 +192,6 @@ input[type=date]:focus, select:focus, .dropdown-btn:focus{border-color:var(--lig
 .chk-row:hover{background:rgba(255,255,255,.04);color:#fff;}
 .chk-row input{accent-color:var(--light-blue);}
 
-/* Content */
-.content{padding:24px 28px 60px;max-width:1400px;}
-.team-banner{
-  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
-  margin-bottom:20px;
-}
-.team-banner h2{font-size:22px;color:#fff;}
-.team-banner .desc{font-size:12.5px;color:var(--text-muted);margin-top:3px;}
-.period-chip{
-  font-size:11px;color:var(--light-blue-2);background:rgba(38,110,242,.12);
-  border:1px solid rgba(38,110,242,.3);padding:5px 12px;border-radius:20px;
-}
-
-.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
-.kpi-card{
-  background:linear-gradient(180deg, var(--panel) 0%, var(--dark-blue-2) 100%);
-  border:1px solid var(--border);border-radius:var(--radius);
-  padding:16px 18px;position:relative;overflow:hidden;
-}
-.kpi-card::after{
-  content:"";position:absolute;right:-30px;top:-30px;width:100px;height:100px;border-radius:50%;
-  background:radial-gradient(circle, rgba(38,110,242,.18), transparent 70%);
-}
-.kpi-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;}
-.kpi-value{font-size:28px;font-weight:600;color:#fff;margin-top:6px;}
-.kpi-value span{font-size:14px;color:var(--text-muted);font-weight:400;}
-.kpi-trend{font-size:11px;margin-top:6px;color:var(--good);display:flex;align-items:center;gap:4px;}
-.kpi-trend.flat{color:var(--text-muted);}
-
-.charts-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-bottom:20px;}
-.panel{
-  background:linear-gradient(180deg, var(--panel) 0%, var(--dark-blue-2) 100%);
-  border:1px solid var(--border);border-radius:var(--radius);
-  padding:18px 20px;
-}
-.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.panel-head h3{font-size:13.5px;color:#fff;font-weight:500;}
-.panel-head .hint{font-size:10.5px;color:var(--text-muted);}
-.chart-wrap{position:relative;height:230px;}
-.chart-wrap.small{height:230px;}
-.empty-note{
-  color:var(--text-muted);font-size:12px;text-align:center;padding:40px 10px;
-}
-
-/* Table */
-.table-panel{margin-bottom:26px;}
-table{width:100%;border-collapse:collapse;font-size:12.8px;}
-thead th{
-  text-align:left;color:var(--text-muted);font-weight:500;font-size:10.5px;
-  text-transform:uppercase;letter-spacing:.05em;
-  padding:10px 12px;border-bottom:1px solid var(--border);
-  position:sticky;top:0;background:var(--panel);
-}
-tbody td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.05);color:var(--text-secondary);vertical-align:middle;}
-tbody tr.member-row{cursor:pointer;transition:background .12s;}
-tbody tr.member-row:hover{background:rgba(38,110,242,.07);}
-.member-name{color:#fff;font-weight:500;display:flex;align-items:center;gap:10px;}
-.avatar{
-  width:30px;height:30px;border-radius:8px;flex-shrink:0;
-  background:linear-gradient(135deg,#2c1c66,#170c42);
-  border:1px solid var(--border);
-  display:flex;align-items:center;justify-content:center;
-  font-size:11px;font-weight:600;color:var(--light-blue-2);
-}
-.count-pill{
-  display:inline-flex;align-items:center;justify-content:center;
-  min-width:30px;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:600;
-  background:rgba(38,110,242,.14);color:var(--light-blue-2);
-}
-.count-pill.zero{background:rgba(255,255,255,.04);color:var(--text-muted);}
-.status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:6px;}
-.status-dot.active{background:var(--good);box-shadow:0 0 8px var(--good);}
-.status-dot.inactive{background:var(--text-muted);}
-.tbl-scroll{max-height:520px;overflow-y:auto;border-radius:var(--radius-sm);}
-.chevron{color:var(--text-muted);font-size:11px;}
-
-/* Modal */
-.modal-overlay{
-  position:fixed;inset:0;background:rgba(6,3,22,.72);backdrop-filter:blur(3px);
-  display:none;align-items:center;justify-content:center;z-index:100;padding:20px;
-}
-.modal-overlay.open{display:flex;}
-.modal{
-  width:100%;max-width:520px;max-height:80vh;overflow-y:auto;
-  background:var(--panel-2);border:1px solid var(--border);border-radius:16px;
-  padding:24px;box-shadow:0 30px 60px -12px rgba(0,0,0,.7);
-}
-.modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px;}
-.modal-head h3{font-size:16px;color:#fff;}
-.modal-head .em{font-size:12px;color:var(--text-muted);margin-top:2px;}
-.modal-close{background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;line-height:1;padding:4px;}
-.modal-close:hover{color:#fff;}
-.modal-stats{display:flex;gap:18px;margin:14px 0 16px;padding:12px 14px;background:rgba(38,110,242,.08);border-radius:10px;border:1px solid rgba(38,110,242,.2);}
-.modal-stats div{font-size:11px;color:var(--text-muted);}
-.modal-stats b{display:block;font-size:17px;color:#fff;font-weight:600;}
-.lesson-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
-.lesson-item{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:10px 12px;background:var(--panel);border:1px solid var(--border);border-radius:9px;
-}
-.lesson-title{font-size:12.5px;color:#fff;}
-.lesson-date{font-size:11px;color:var(--light-blue-2);white-space:nowrap;}
-.lesson-empty{padding:30px 10px;text-align:center;color:var(--text-muted);font-size:12.5px;}
-
-/* Overview specific */
-.rank-list{list-style:none;margin:0;padding:0;}
-.rank-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);}
-.rank-item:last-child{border-bottom:none;}
-.rank-num{width:20px;font-size:11px;color:var(--text-muted);}
-.rank-name{flex:1;font-size:12.5px;color:#fff;}
-.rank-bar-track{width:90px;height:6px;background:rgba(255,255,255,.06);border-radius:6px;overflow:hidden;}
-.rank-bar-fill{height:100%;background:linear-gradient(90deg,var(--light-blue),var(--light-blue-2));border-radius:6px;}
-.rank-value{width:28px;text-align:right;font-size:12px;color:var(--light-blue-2);font-weight:600;}
-
-/* Loading / Error screens */
-.loading-screen{
-  position:fixed;inset:0;z-index:200;
-  background:radial-gradient(1200px 800px at 10% -10%, #1a0f4a 0%, var(--dark-blue) 45%);
-  display:flex;align-items:center;justify-content:center;
-}
-.loading-screen.hidden{display:none;}
-.loading-box{text-align:center;}
-.spinner{
-  width:42px;height:42px;border-radius:50%;
-  border:3px solid rgba(255,255,255,.12);border-top-color:var(--light-blue);
-  margin:0 auto 18px;animation:spin .8s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg);}}
-.loading-title{color:#fff;font-size:15px;font-weight:500;}
-.loading-sub{color:var(--text-muted);font-size:12px;margin-top:6px;}
-
-.error-screen{
-  position:fixed;inset:0;z-index:200;
-  background:rgba(6,3,22,.85);backdrop-filter:blur(4px);
-  display:none;align-items:center;justify-content:center;padding:20px;
-}
-.error-screen.open{display:flex;}
-.error-box{
-  max-width:460px;background:var(--panel-2);border:1px solid var(--danger);
-  border-radius:16px;padding:26px;text-align:center;
-}
-.error-title{color:#fff;font-size:16px;font-weight:500;margin-bottom:10px;}
-.error-msg{color:var(--text-secondary);font-size:12.5px;line-height:1.6;margin-bottom:18px;white-space:pre-line;text-align:left;}
-
-.data-status{
-  padding:6px 28px 0;font-size:11px;color:var(--text-muted);display:flex;gap:14px;flex-wrap:wrap;align-items:center;
-}
-.data-status .dot{width:6px;height:6px;border-radius:50%;background:var(--good);display:inline-block;margin-right:5px;}
-.data-status a{color:var(--light-blue-2);text-decoration:none;}
-.data-status a:hover{text-decoration:underline;}
-
-/* Print */
-.print-only{display:none;}
-@media print{
-  body{background:#fff !important;color:#0f052e !important;}
-  .sidebar,.header,.no-print{display:none !important;}
-  .content{display:none !important;}
-  .print-only{display:block !important;}
-  .print-page{page-break-after:always;padding:14px 0 30px;}
-  .print-page:last-child{page-break-after:auto;}
-  .print-title{font-size:18px;color:#0f052e;margin-bottom:2px;font-weight:600;}
-  .print-sub{font-size:11px;color:#4a4a6a;margin-bottom:14px;}
-  .print-table{width:100%;border-collapse:collapse;font-size:10.5px;}
-  .print-table th{text-align:left;background:#ebf2f7;color:#0f052e;padding:6px 8px;border:1px solid #cfd8e6;}
-  .print-table td{padding:6px 8px;border:1px solid #e3e8f0;color:#232342;}
-  .print-kpis{display:flex;gap:14px;margin-bottom:12px;}
-  .print-kpi{border:1px solid #cfd8e6;border-radius:8px;padding:8px 12px;}
-  .print-kpi b{display:block;font-size:16px;color:#0f052e;}
-  .print-kpi span{font-size:10px;color:#5a5a7a;}
-}
-
-@media (max-width:1100px){
-  .kpi-grid{grid-template-columns:repeat(2,1fr);}
-  .charts-grid{grid-template-columns:1fr;}
-}
 .menu-toggle{
   display:none;background:var(--panel);border:1px solid var(--border);color:#fff;
   width:36px;height:36px;border-radius:9px;font-size:15px;cursor:pointer;flex-shrink:0;
@@ -402,12 +219,182 @@ tbody tr.member-row:hover{background:rgba(38,110,242,.07);}
 }
 .link-row button:hover{background:rgba(38,110,242,.28);}
 .link-row button.copied{background:var(--good);border-color:var(--good);color:#06341f;}
-.kpi-card.pct .kpi-value{color:var(--light-blue-2);}
-.kpi-sub{font-size:10.5px;color:var(--text-muted);margin-top:4px;}
+
 .sidebar-scrim{display:none;position:fixed;inset:0;background:rgba(6,3,22,.55);z-index:45;}
 .sidebar-scrim.open{display:block;}
+
+.content{padding:24px 28px 60px;max-width:1440px;}
+.team-banner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:20px;}
+.team-banner h2{font-size:22px;color:#fff;}
+.team-banner .desc{font-size:12.5px;color:var(--text-muted);margin-top:3px;}
+.period-chip{
+  font-size:11px;color:var(--light-blue-2);background:rgba(38,110,242,.12);
+  border:1px solid rgba(38,110,242,.3);padding:5px 12px;border-radius:20px;
+}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.kpi-card{
+  background:linear-gradient(180deg, var(--panel) 0%, var(--dark-blue-2) 100%);
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px 18px;position:relative;overflow:hidden;
+}
+.kpi-card::after{
+  content:"";position:absolute;right:-30px;top:-30px;width:100px;height:100px;border-radius:50%;
+  background:radial-gradient(circle, rgba(38,110,242,.18), transparent 70%);
+}
+.kpi-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;}
+.kpi-value{font-size:28px;font-weight:600;color:#fff;margin-top:6px;}
+.kpi-value span{font-size:14px;color:var(--text-muted);font-weight:400;}
+.kpi-card.pct .kpi-value{color:var(--light-blue-2);}
+.kpi-sub{font-size:10.5px;color:var(--text-muted);margin-top:4px;}
+
+.charts-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-bottom:20px;}
+.panel{
+  background:linear-gradient(180deg, var(--panel) 0%, var(--dark-blue-2) 100%);
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px 20px;
+}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.panel-head h3{font-size:13.5px;color:#fff;font-weight:500;}
+.panel-head .hint{font-size:10.5px;color:var(--text-muted);}
+.chart-wrap{position:relative;height:230px;}
+.empty-note{color:var(--text-muted);font-size:12px;text-align:center;padding:40px 10px;}
+
+.table-panel{margin-bottom:26px;}
+table{width:100%;border-collapse:collapse;font-size:12.8px;}
+thead th{
+  text-align:left;color:var(--text-muted);font-weight:500;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.05em;
+  padding:10px 12px;border-bottom:1px solid var(--border);
+  position:sticky;top:0;background:var(--panel);
+}
+tbody td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.05);color:var(--text-secondary);vertical-align:middle;}
+tbody tr.member-row{cursor:pointer;transition:background .12s;}
+tbody tr.member-row:hover{background:rgba(38,110,242,.07);}
+.member-name{color:#fff;font-weight:500;display:flex;align-items:center;gap:10px;}
+.avatar{
+  width:30px;height:30px;border-radius:8px;flex-shrink:0;
+  background:linear-gradient(135deg,#2c1c66,#170c42);
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:600;color:var(--light-blue-2);
+}
+.count-pill{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:30px;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:600;
+  background:rgba(38,110,242,.14);color:var(--light-blue-2);
+}
+.count-pill.zero{background:rgba(255,255,255,.04);color:var(--text-muted);}
+.count-pill.active{background:rgba(46,204,113,.16);color:var(--good);}
+.status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:6px;}
+.status-dot.active{background:var(--good);box-shadow:0 0 8px var(--good);}
+.status-dot.inactive{background:var(--text-muted);}
+.tbl-scroll{max-height:520px;overflow-y:auto;border-radius:var(--radius-sm);}
+.chevron{color:var(--text-muted);font-size:11px;}
+
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(6,3,22,.72);backdrop-filter:blur(3px);
+  display:none;align-items:center;justify-content:center;z-index:100;padding:20px;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  width:100%;max-width:520px;max-height:80vh;overflow-y:auto;
+  background:var(--panel-2);border:1px solid var(--border);border-radius:16px;
+  padding:24px;box-shadow:0 30px 60px -12px rgba(0,0,0,.7);
+}
+.modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px;}
+.modal-head h3{font-size:16px;color:#fff;}
+.modal-head .em{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.modal-close{background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;line-height:1;padding:4px;}
+.modal-close:hover{color:#fff;}
+.modal-stats{display:flex;gap:18px;margin:14px 0 16px;padding:12px 14px;background:rgba(38,110,242,.08);border-radius:10px;border:1px solid rgba(38,110,242,.2);}
+.modal-stats div{font-size:11px;color:var(--text-muted);}
+.modal-stats b{display:block;font-size:17px;color:#fff;font-weight:600;}
+.lesson-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+.lesson-item{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 12px;background:var(--panel);border:1px solid var(--border);border-radius:9px;
+}
+.lesson-title{font-size:12.5px;color:#fff;}
+.lesson-date{font-size:11px;color:var(--light-blue-2);white-space:nowrap;}
+.lesson-empty{padding:30px 10px;text-align:center;color:var(--text-muted);font-size:12.5px;}
+
+.pdi-box{margin:0 0 16px;padding:12px 14px;background:rgba(38,110,242,.05);border:1px solid var(--border);border-radius:10px;}
+.pdi-box-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.pdi-box-head h4{margin:0;font-size:12.5px;color:#fff;font-weight:600;}
+.pdi-box-pct{font-size:13px;font-weight:700;color:var(--light-blue-2);}
+.pdi-progress-track{width:100%;height:7px;background:rgba(255,255,255,.06);border-radius:6px;overflow:hidden;margin-bottom:10px;}
+.pdi-progress-fill{height:100%;background:linear-gradient(90deg,var(--light-blue),var(--light-blue-2));border-radius:6px;}
+.pdi-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;}
+.pdi-item{display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 0;}
+.pdi-check{width:16px;height:16px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;}
+.pdi-check.done{background:var(--good);color:#08210f;}
+.pdi-check.pending{background:rgba(255,255,255,.08);color:var(--text-muted);border:1px solid var(--border);}
+.pdi-item-title{color:#fff;}
+.pdi-item.pending .pdi-item-title{color:var(--text-muted);}
+.pdi-none-note{font-size:12px;color:var(--text-muted);padding:2px 0;}
+
+.rank-list{list-style:none;margin:0;padding:0;}
+.rank-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.rank-item:last-child{border-bottom:none;}
+.rank-num{width:20px;font-size:11px;color:var(--text-muted);}
+.rank-name{flex:1;font-size:12.5px;color:#fff;}
+.rank-bar-track{width:90px;height:6px;background:rgba(255,255,255,.06);border-radius:6px;overflow:hidden;}
+.rank-bar-fill{height:100%;background:linear-gradient(90deg,var(--light-blue),var(--light-blue-2));border-radius:6px;}
+.rank-value{width:32px;text-align:right;font-size:12px;color:var(--light-blue-2);font-weight:600;}
+
+.loading-screen{
+  position:fixed;inset:0;z-index:200;
+  background:radial-gradient(1200px 800px at 10% -10%, #1a0f4a 0%, var(--dark-blue) 45%);
+  display:flex;align-items:center;justify-content:center;
+}
+.loading-screen.hidden{display:none;}
+.loading-box{text-align:center;}
+.spinner{
+  width:42px;height:42px;border-radius:50%;
+  border:3px solid rgba(255,255,255,.12);border-top-color:var(--light-blue);
+  margin:0 auto 18px;animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-title{color:#fff;font-size:15px;font-weight:500;}
+.loading-sub{color:var(--text-muted);font-size:12px;margin-top:6px;}
+.error-screen{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(6,3,22,.85);backdrop-filter:blur(4px);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.error-screen.open{display:flex;}
+.error-box{max-width:460px;background:var(--panel-2);border:1px solid var(--danger);border-radius:16px;padding:26px;text-align:center;}
+.error-title{color:#fff;font-size:16px;font-weight:500;margin-bottom:10px;}
+.error-msg{color:var(--text-secondary);font-size:12.5px;line-height:1.6;margin-bottom:18px;white-space:pre-line;text-align:left;}
+
+.data-status{padding:6px 28px 0;font-size:11px;color:var(--text-muted);display:flex;gap:14px;flex-wrap:wrap;align-items:center;}
+.data-status .dot{width:6px;height:6px;border-radius:50%;background:var(--good);display:inline-block;margin-right:5px;}
+
+.print-only{display:none;}
+@media print{
+  body{background:#fff !important;color:#0f052e !important;}
+  .sidebar,.header,.no-print{display:none !important;}
+  .content{display:none !important;}
+  .print-only{display:block !important;}
+  .print-page{page-break-after:always;padding:14px 0 30px;}
+  .print-page:last-child{page-break-after:auto;}
+  .print-title{font-size:18px;color:#0f052e;margin-bottom:2px;font-weight:600;}
+  .print-sub{font-size:11px;color:#4a4a6a;margin-bottom:14px;}
+  .print-table{width:100%;border-collapse:collapse;font-size:10.5px;margin-bottom:10px;}
+  .print-table th{text-align:left;background:#ebf2f7;color:#0f052e;padding:6px 8px;border:1px solid #cfd8e6;}
+  .print-table td{padding:6px 8px;border:1px solid #e3e8f0;color:#232342;}
+  .print-kpis{display:flex;gap:14px;margin-bottom:12px;flex-wrap:wrap;}
+  .print-kpi{border:1px solid #cfd8e6;border-radius:8px;padding:8px 12px;}
+  .print-kpi b{display:block;font-size:16px;color:#0f052e;}
+  .print-kpi span{font-size:10px;color:#5a5a7a;}
+}
+@media (max-width:1100px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .charts-grid{grid-template-columns:1fr;}
+}
 @media (max-width:820px){
-  .sidebar{position:fixed;left:-280px;top:0;transition:left .2s;z-index:50;box-shadow:0 0 60px rgba(0,0,0,.5);}
+  .sidebar{position:fixed;left:-290px;top:0;transition:left .2s;z-index:50;box-shadow:0 0 60px rgba(0,0,0,.5);}
   .sidebar.open{left:0;}
   .app{display:block;}
   .content{padding:18px 14px 60px;}
@@ -419,16 +406,6 @@ tbody tr.member-row:hover{background:rgba(38,110,242,.07);}
 <script>
 /* =========================================================================
    CONFIGURAÇÃO DO REPOSITÓRIO GITHUB — edite estes valores antes de publicar
-   =========================================================================
-   owner              -> seu usuário do GitHub
-   repo               -> nome do repositório onde este index.html está hospedado
-   branch             -> branch usada pelo GitHub Pages (geralmente "main")
-   membersPath        -> caminho do CSV com a lista de membros por liderança
-   attendanceFolder   -> pasta onde os CSVs de consumo (redarbor) são enviados
-   attendancePrefix   -> só arquivos cujo nome comece com este prefixo (e termine
-                         em .csv) dentro da pasta acima são somados ao painel.
-                         Isso permite subir um novo arquivo por dia, ex:
-                         redarbor.csv, redarbor_2026-07-15.csv, redarbor_2026-07-16.csv...
    ========================================================================= */
 window.DASHBOARD_CONFIG = {
   owner: "gabrielsbrasil",
@@ -436,7 +413,8 @@ window.DASHBOARD_CONFIG = {
   branch: "main",
   membersPath: "data/membros.csv",
   attendanceFolder: "data",
-  attendancePrefix: "redarbor"
+  attendancePrefix: "redarbor",
+  pdiPath: "data/pdi.csv"
 };
 </script>
 </head>
@@ -460,19 +438,19 @@ window.DASHBOARD_CONFIG = {
     <div id="nav-areas"></div>
 
     <div class="sidebar-foot">
-      <p>Dados de consumo importados via CSV (arquivo "redarbor"). Suba um novo arquivo em "data/" para atualizar os acessos.</p>
+      <p>Dados de consumo importados via CSV (arquivos "redarbor*.csv" em "data/"). Suba um novo arquivo para atualizar os acessos.</p>
     </div>
   </aside>
 
   <main class="main">
     <header class="header">
       <div class="header-title" style="display:flex;align-items:center;gap:12px;">
-        <button class="menu-toggle no-print" id="menu-toggle" aria-label="Abrir menu de times">☰</button>
+        <button class="menu-toggle no-print" id="menu-toggle" aria-label="Abrir menu">☰</button>
         <div>
           <h1 id="view-title">Visão geral</h1>
-          <div class="sub" id="view-sub">Consolidado de todos os times Redarbor na PipeLovers</div>
+          <div class="sub" id="view-sub">Consolidado de todas as áreas, gerências e lideranças</div>
         </div>
-        <span class="locked-chip no-print" id="locked-chip" style="display:none;">🔒 Link exclusivo do time</span>
+        <span class="locked-chip no-print" id="locked-chip" style="display:none;"></span>
       </div>
 
       <div class="filters no-print">
@@ -488,7 +466,23 @@ window.DASHBOARD_CONFIG = {
           <label>Até</label>
           <input type="date" id="date-to">
         </div>
-        <div class="field member-dropdown" id="member-dropdown-wrap" style="display:none;">
+
+        <div class="field multi-dropdown" id="filter-area-wrap" style="display:none;">
+          <label>Área</label>
+          <button class="dropdown-btn" id="filter-area-btn">Todas ▾</button>
+          <div class="dropdown-panel" id="filter-area-panel"></div>
+        </div>
+        <div class="field multi-dropdown" id="filter-gerencia-wrap" style="display:none;">
+          <label>Gerência</label>
+          <button class="dropdown-btn" id="filter-gerencia-btn">Todas ▾</button>
+          <div class="dropdown-panel" id="filter-gerencia-panel"></div>
+        </div>
+        <div class="field multi-dropdown" id="filter-lider-wrap" style="display:none;">
+          <label>Liderança</label>
+          <button class="dropdown-btn" id="filter-lider-btn">Todas ▾</button>
+          <div class="dropdown-panel" id="filter-lider-panel"></div>
+        </div>
+        <div class="field multi-dropdown" id="member-dropdown-wrap" style="display:none;">
           <label>Membros</label>
           <button class="dropdown-btn" id="member-dropdown-btn">Todos selecionados ▾</button>
           <div class="dropdown-panel" id="member-dropdown-panel">
@@ -499,21 +493,21 @@ window.DASHBOARD_CONFIG = {
             <div id="member-checklist"></div>
           </div>
         </div>
+
         <button class="btn ghost" id="reset-filters">Limpar filtros</button>
         <button class="btn ghost" id="refresh-data" title="Buscar dados mais recentes do GitHub">⟳ Atualizar dados</button>
-        <div class="member-dropdown" id="links-dropdown-wrap" style="display:none;">
-          <button class="btn ghost dropdown-btn" id="links-dropdown-btn">🔗 Links por liderança ▾</button>
-          <div class="dropdown-panel" id="links-dropdown-panel" style="width:360px;"></div>
+        <div class="multi-dropdown" id="links-dropdown-wrap" style="display:none;">
+          <button class="btn ghost dropdown-btn" id="links-dropdown-btn">🔗 Links de acesso ▾</button>
+          <div class="dropdown-panel" id="links-dropdown-panel" style="width:380px;"></div>
         </div>
-        <div class="member-dropdown">
+        <div class="multi-dropdown">
           <button class="btn dropdown-btn" id="export-dropdown-btn">⭳ Exportar ▾</button>
-          <div class="dropdown-panel" id="export-dropdown-panel" style="width:300px;"></div>
+          <div class="dropdown-panel" id="export-dropdown-panel" style="width:310px;"></div>
         </div>
       </div>
     </header>
 
     <div class="data-status no-print" id="data-status"></div>
-
     <div class="content" id="content"></div>
   </main>
 </div>
@@ -548,6 +542,7 @@ window.DASHBOARD_CONFIG = {
       <div><b id="modal-total">0</b>aulas no período</div>
       <div><b id="modal-last">—</b>último acesso</div>
     </div>
+    <div id="modal-pdi-section"></div>
     <ul class="lesson-list" id="modal-lessons"></ul>
   </div>
 </div>
@@ -558,7 +553,7 @@ window.DASHBOARD_CONFIG = {
 /* ============ CONFIG ============ */
 const CFG = window.DASHBOARD_CONFIG || {};
 
-/* ============ CSV PARSER (RFC4180-ish, lida com aspas/campos com vírgula) ============ */
+/* ============ CSV PARSER ============ */
 function parseCSV(text){
   text = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
   const rows = [];
@@ -607,17 +602,31 @@ function slugify(s){
   return s;
 }
 
-/* ============ MONTA A ESTRUTURA DE TIMES A PARTIR DOS CSVS ============ */
-function buildTeams(membersRows, attendanceRows){
-  const teamsMap = new Map(); // leader -> {area, members:[]}
+/* ============ NORMALIZAÇÃO DE TEXTO (p/ casar aula do PDI com "Conteúdo" do redarbor) ============ */
+const ACCENT_MAP = {'à':'a','á':'a','â':'a','ã':'a','ä':'a','è':'e','é':'e','ê':'e','ë':'e',
+  'ì':'i','í':'i','î':'i','ï':'i','ò':'o','ó':'o','ô':'o','õ':'o','ö':'o',
+  'ù':'u','ú':'u','û':'u','ü':'u','ç':'c'};
+function normTitle(s){
+  s = (s||'').toLowerCase().trim();
+  s = s.split('').map(ch=>ACCENT_MAP[ch]||ch).join('');
+  s = s.replace(/\s+/g,' ').replace(/[.:;,!?"'`´]+$/g,'').trim();
+  return s;
+}
+
+/* ============ MONTA A ÁRVORE ÁREA → GERÊNCIA → LIDERANÇA ============ */
+function buildTeams(membersRows, attendanceRows, pdiRows){
+  // leaderKey (area|gerencia|lider) -> {area, gerencia, lider, members:[]}
+  const leadersMap = new Map();
   membersRows.forEach(row=>{
     const area = (row['AREA'] || row['Área'] || row['area'] || 'Sem área').trim();
-    const leader = (row['LÍDER/GESTÃO'] || row['LIDER/GESTAO'] || row['LIDER/Gestão'] || row['LIDER/Gestao'] || '').trim();
+    const gerencia = (row['GERENCIA'] || row['GERÊNCIA'] || row['Gerencia'] || row['Gerência'] || 'Sem gerência').trim();
+    const lider = (row['LIDER'] || row['LÍDER'] || row['LIDER/GESTÃO'] || row['LÍDER/GESTÃO'] || '').trim();
     const nome = (row['NOME COMPLETO'] || row['Nome completo do membro'] || '').trim();
     const email = (row['E-MAIL DO MEMBRO'] || row['E-mail do membro'] || '').trim().toLowerCase();
-    if(!leader || !nome || !email) return;
-    if(!teamsMap.has(leader)) teamsMap.set(leader, {area, members:[]});
-    teamsMap.get(leader).members.push({nome, email});
+    if(!area || !gerencia || !lider || !nome || !email) return;
+    const key = area + '\u0001' + gerencia + '\u0001' + lider;
+    if(!leadersMap.has(key)) leadersMap.set(key, {area, gerencia, lider, members:[]});
+    leadersMap.get(key).members.push({nome, email});
   });
 
   const attByEmail = new Map();
@@ -628,44 +637,80 @@ function buildTeams(membersRows, attendanceRows){
     const titulo = (row['Conteúdo']||row['Conteudo']||'').trim();
     const dataStr = (row['Data']||'').trim();
     if(!email || !titulo || !dataStr) return;
-    const key = email+'|'+titulo+'|'+dataStr;
-    if(seen.has(key)){ dedupCount++; return; }
-    seen.add(key);
+    const dedupKey = email+'|'+titulo+'|'+dataStr;
+    if(seen.has(dedupKey)){ dedupCount++; return; }
+    seen.add(dedupKey);
     const iso = parseBRDateTime(dataStr);
     if(!attByEmail.has(email)) attByEmail.set(email, []);
     attByEmail.get(email).push({titulo, data:dataStr, iso});
   });
   attByEmail.forEach(list => list.sort((a,b)=> (b.iso||'').localeCompare(a.iso||'')));
 
+  // Monta mapa de PDI por e-mail: email -> [ 'aula 1', 'aula 2', ... ] (nomes originais)
+  const pdiByEmail = new Map();
+  (pdiRows||[]).forEach(row=>{
+    const email = (row['Email']||row['E-mail']||row['email']||'').trim().toLowerCase();
+    const aula = (row['Aula PDI']||row['Aula do PDI']||row['aula pdi']||'').trim();
+    if(!email || !aula) return;
+    if(!pdiByEmail.has(email)) pdiByEmail.set(email, []);
+    pdiByEmail.get(email).push(aula);
+  });
+
+  // Monta times (nível folha = liderança)
   const teams = [];
-  teamsMap.forEach(({area, members}, leader)=>{
+  leadersMap.forEach(({area, gerencia, lider, members})=>{
+    const areaSlug = slugify(area);
+    const gerenciaSlug = areaSlug + '--' + slugify(gerencia);
+    const leaderSlug = gerenciaSlug + '--' + slugify(lider);
     const membros = members.map(m=>{
       const lessons = attByEmail.get(m.email) || [];
+      const pdiAulas = pdiByEmail.get(m.email) || [];
+      const watchedTitles = new Set(lessons.map(a=>normTitle(a.titulo)));
+      const pdi = pdiAulas.length ? {
+        total: pdiAulas.length,
+        aulas: pdiAulas.map(nome => ({ nome, feita: watchedTitles.has(normTitle(nome)) })),
+      } : null;
+      if(pdi){
+        pdi.feitas = pdi.aulas.filter(a=>a.feita).length;
+        pdi.pct = pdi.total ? (pdi.feitas/pdi.total*100) : 0;
+      }
       return {
         nome: m.nome, email: m.email, aulas: lessons, totalAulas: lessons.length,
         ultimoAcesso: lessons[0] ? lessons[0].iso : null,
-        ultimoAcessoStr: lessons[0] ? lessons[0].data : null
+        ultimoAcessoStr: lessons[0] ? lessons[0].data : null,
+        pdi
       };
     });
     membros.sort((a,b)=>b.totalAulas-a.totalAulas);
-    teams.push({ lider: leader, slug: slugify(leader), area, areaSlug: slugify(area), membros });
+    teams.push({ area, areaSlug, gerencia, gerenciaSlug, lider, slug: leaderSlug, membros });
   });
   teams.sort((a,b)=> a.lider.localeCompare(b.lider, 'pt-BR'));
 
-  // agrupa em áreas
-  const areasMap = new Map();
+  // Agrupa em gerências
+  const gerenciasMap = new Map();
   teams.forEach(t=>{
-    if(!areasMap.has(t.areaSlug)) areasMap.set(t.areaSlug, { area: t.area, slug: t.areaSlug, leaders: [] });
-    areasMap.get(t.areaSlug).leaders.push(t);
+    if(!gerenciasMap.has(t.gerenciaSlug)){
+      gerenciasMap.set(t.gerenciaSlug, { gerencia: t.gerencia, slug: t.gerenciaSlug, area: t.area, areaSlug: t.areaSlug, leaders: [] });
+    }
+    gerenciasMap.get(t.gerenciaSlug).leaders.push(t);
+  });
+  const gerencias = [...gerenciasMap.values()];
+  gerencias.forEach(g => g.leaders.sort((x,y)=> x.lider.localeCompare(y.lider, 'pt-BR')));
+
+  // Agrupa em áreas
+  const areasMap = new Map();
+  gerencias.forEach(g=>{
+    if(!areasMap.has(g.areaSlug)) areasMap.set(g.areaSlug, { area: g.area, slug: g.areaSlug, gerencias: [] });
+    areasMap.get(g.areaSlug).gerencias.push(g);
   });
   const areas = [...areasMap.values()].sort((a,b)=> a.area.localeCompare(b.area, 'pt-BR'));
-  areas.forEach(a => a.leaders.sort((x,y)=> x.lider.localeCompare(y.lider, 'pt-BR')));
+  areas.forEach(a => a.gerencias.sort((x,y)=> x.gerencia.localeCompare(y.gerencia, 'pt-BR')));
 
   const matchedEmails = new Set();
   teams.forEach(t=>t.membros.forEach(m=>matchedEmails.add(m.email)));
   const unmatched = [...attByEmail.keys()].filter(e=>!matchedEmails.has(e));
 
-  return { teams, areas, dedupCount, unmatched };
+  return { teams, gerencias, areas, dedupCount, unmatched };
 }
 
 /* ============ CARREGAMENTO DOS DADOS (GITHUB) ============ */
@@ -685,21 +730,20 @@ async function loadAllData(){
     throw new Error(
       'O painel ainda não foi configurado para o seu repositório.\n\n' +
       'Abra o index.html, encontre o bloco "CONFIGURAÇÃO DO REPOSITÓRIO GITHUB" ' +
-      'no topo do arquivo e preencha "owner" e "repo" com os dados do seu ' +
-      'repositório no GitHub.'
+      'no topo do arquivo e preencha "owner" e "repo" com os dados do seu repositório no GitHub.'
     );
   }
   const rawBase = `https://raw.githubusercontent.com/${CFG.owner}/${CFG.repo}/${CFG.branch}`;
   const apiUrl = `https://api.github.com/repos/${CFG.owner}/${CFG.repo}/contents/${CFG.attendanceFolder}?ref=${CFG.branch}`;
 
-  setLoadingSub('Buscando lista de membros por liderança…');
+  setLoadingSub('Buscando lista de membros (área / gerência / liderança)…');
   let membersText;
   try {
     membersText = await fetchText(`${rawBase}/${CFG.membersPath}`);
   } catch(e){
     throw new Error(
       `Não encontrei o arquivo "${CFG.membersPath}" no repositório ${CFG.owner}/${CFG.repo} (branch ${CFG.branch}).\n` +
-      'Confira se o arquivo foi enviado com esse nome/caminho exatos e se o repositório é público.\n\n' + e.message
+      'Confira se o arquivo foi enviado com esse nome/caminho exatos (dentro da pasta "data/") e se o repositório é público.\n\n' + e.message
     );
   }
   const membersRows = parseCSV(membersText);
@@ -722,7 +766,7 @@ async function loadAllData(){
     throw new Error(
       `Nenhum arquivo "${CFG.attendancePrefix}*.csv" encontrado em "${CFG.attendanceFolder}/".\n` +
       'Suba o CSV de consumo diário nessa pasta com um nome que comece com ' +
-      `"${CFG.attendancePrefix}" (ex.: ${CFG.attendancePrefix}.csv, ${CFG.attendancePrefix}_2026-07-15.csv).`
+      `"${CFG.attendancePrefix}" e termine em ".csv" (ex.: ${CFG.attendancePrefix}.csv, ${CFG.attendancePrefix}_2026-07-15.csv).`
     );
   }
 
@@ -731,41 +775,56 @@ async function loadAllData(){
   let attendanceRows = [];
   texts.forEach(t => { attendanceRows = attendanceRows.concat(parseCSV(t)); });
 
-  const { teams, areas, dedupCount, unmatched } = buildTeams(membersRows, attendanceRows);
+  setLoadingSub('Buscando planos de PDI (opcional)…');
+  let pdiRows = [];
+  let pdiAvailable = false;
+  if(CFG.pdiPath){
+    try {
+      const pdiText = await fetchText(`${rawBase}/${CFG.pdiPath}`);
+      pdiRows = parseCSV(pdiText);
+      pdiAvailable = true;
+    } catch(e){
+      // Arquivo de PDI é opcional — se não existir ainda, o painel funciona normalmente sem esse indicador.
+      pdiRows = [];
+      pdiAvailable = false;
+    }
+  }
+
+  const { teams, gerencias, areas, dedupCount, unmatched } = buildTeams(membersRows, attendanceRows, pdiRows);
 
   return {
-    teams,
-    areas,
+    teams, gerencias, areas,
     sourceFiles: csvFiles.map(f=>f.name),
     totalRows: attendanceRows.length,
-    dedupCount,
-    unmatched,
+    dedupCount, unmatched,
+    pdiAvailable,
     loadedAt: new Date()
   };
 }
 
 /* ============ ESTADO GLOBAL DE DADOS (populado após o load) ============ */
 let RAW_TEAMS = [];
+let PDI_AVAILABLE = false;
+let RAW_GERENCIAS = [];
 let RAW_AREAS = [];
 let ALL_ISO = [];
 let MIN_DATE = null, MAX_DATE = null;
 let AVAILABLE_MONTHS = [];
 const teamBySlug = {};
+const gerenciaBySlug = {};
 const areaBySlug = {};
 
 function deriveGlobals(){
   Object.keys(teamBySlug).forEach(k=>delete teamBySlug[k]);
+  Object.keys(gerenciaBySlug).forEach(k=>delete gerenciaBySlug[k]);
   Object.keys(areaBySlug).forEach(k=>delete areaBySlug[k]);
   ALL_ISO = [];
   RAW_TEAMS.forEach(t=>{
     teamBySlug[t.slug] = t;
     if(!(t.slug in state.selectedMembers)) state.selectedMembers[t.slug] = null;
   });
-  RAW_AREAS.forEach(a=>{
-    areaBySlug[a.slug] = a;
-    const key = 'area:' + a.slug;
-    if(!(key in state.selectedMembers)) state.selectedMembers[key] = null;
-  });
+  RAW_GERENCIAS.forEach(g=>{ gerenciaBySlug[g.slug] = g; });
+  RAW_AREAS.forEach(a=>{ areaBySlug[a.slug] = a; });
   RAW_TEAMS.forEach(t => t.membros.forEach(m => m.aulas.forEach(a => { if(a.iso) ALL_ISO.push(a.iso); })));
   ALL_ISO.sort();
   MIN_DATE = ALL_ISO.length ? ALL_ISO[0].slice(0,10) : null;
@@ -775,21 +834,28 @@ function deriveGlobals(){
 
 /* ============ STATE ============ */
 const state = {
-  view: 'overview', // 'overview', 'area:<slug>' ou slug de uma liderança
+  view: 'overview', // 'overview' | 'area:<slug>' | 'gerencia:<slug>' | '<leaderSlug>'
   dateFrom: null,
   dateTo: null,
-  selectedMembers: {}, // chave (slug de liderança ou "area:<slug>") -> Set(emails) ou null = todos
-  locked: false,        // true quando acessado via ?time=<slug> ou ?area=<slug>
-  lockType: 'none',     // 'none' | 'leader' | 'area'
-  lockAreaSlug: null,   // preenchido quando lockType === 'area'
-  lockedInvalid: false  // true quando o parâmetro da URL não bateu com nenhum time/área
+  selectedMembers: {},   // chave de view (líder ou "area:.."/"gerencia:..") -> Set(emails) ou null = todos
+  entityFilters: {},     // chave de view -> { areas:Set|null, gerencias:Set|null, lideres:Set|null }
+  locked: false,
+  lockType: 'none',      // 'none' | 'leader' | 'gerencia' | 'area'
+  lockAreaSlug: null,
+  lockGerenciaSlug: null,
+  lockedInvalid: false
 };
 
 function getUrlLockParams(){
   try {
     const params = new URLSearchParams(window.location.search);
-    return { time: params.get('time'), area: params.get('area') };
-  } catch(e){ return { time:null, area:null }; }
+    return { time: params.get('time'), gerencia: params.get('gerencia'), area: params.get('area') };
+  } catch(e){ return { time:null, gerencia:null, area:null }; }
+}
+
+function getEntityFilter(viewKey){
+  if(!state.entityFilters[viewKey]) state.entityFilters[viewKey] = { areas:null, gerencias:null, lideres:null };
+  return state.entityFilters[viewKey];
 }
 
 const MONTH_NAMES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
@@ -798,7 +864,7 @@ function monthLabel(ym){
   return MONTH_NAMES[parseInt(m,10)-1] + '/' + y;
 }
 
-let charts = {}; // id -> Chart instance
+let charts = {};
 
 /* ============ HELPERS ============ */
 function fmtDateBR(iso){
@@ -808,8 +874,7 @@ function fmtDateBR(iso){
 }
 function fmtDateShort(iso){
   if(!iso) return '—';
-  const d = new Date(iso);
-  return d.toLocaleDateString('pt-BR');
+  return new Date(iso).toLocaleDateString('pt-BR');
 }
 function initials(name){
   const parts = name.trim().split(/\s+/);
@@ -825,12 +890,75 @@ function inRange(iso){
 function filteredLessons(member){
   return member.aulas.filter(a => inRange(a.iso));
 }
-function memberSelected(slug, email){
-  const sel = state.selectedMembers[slug];
+function memberSelected(viewKey, email){
+  const sel = state.selectedMembers[viewKey];
   return !sel || sel.has(email);
 }
+function periodLabel(){
+  if(!state.dateFrom && !state.dateTo) return 'Todo o período';
+  const f = state.dateFrom ? new Date(state.dateFrom+'T00:00:00').toLocaleDateString('pt-BR') : 'início';
+  const t = state.dateTo ? new Date(state.dateTo+'T00:00:00').toLocaleDateString('pt-BR') : 'hoje';
+  return `${f} — ${t}`;
+}
 
-/* ============ FILTER BAR ============ */
+function computeIndicators(members){
+  const total = members.length;
+  let logged = 0, three = 0, totalAulas = 0, lastAccess = null;
+  members.forEach(m=>{
+    const les = filteredLessons(m);
+    totalAulas += les.length;
+    if(les.length > 0){
+      logged++;
+      les.forEach(a=>{ if(!lastAccess || a.iso > lastAccess) lastAccess = a.iso; });
+    }
+    if(les.length >= 3) three++;
+  });
+  // PDI: agregados considerando só quem tem PDI atribuído (denominador não conta quem não tem PDI)
+  const withPdi = members.filter(m=>m.pdi);
+  const pdiMembersCount = withPdi.length;
+  const pdiAvgPct = pdiMembersCount ? (withPdi.reduce((s,m)=>s+m.pdi.pct,0) / pdiMembersCount) : 0;
+  const pdiCompletedCount = withPdi.filter(m=>m.pdi.pct >= 100).length;
+  const pdiCompletedPct = pdiMembersCount ? (pdiCompletedCount/pdiMembersCount*100) : 0;
+  return {
+    total, logged,
+    loggedPct: total ? (logged/total*100) : 0,
+    three,
+    threePct: total ? (three/total*100) : 0,
+    totalAulas,
+    media: total ? (totalAulas/total) : 0,
+    lastAccess,
+    pdiMembersCount, pdiAvgPct, pdiCompletedCount, pdiCompletedPct
+  };
+}
+
+/* ============ ESCOPO: quais times (folhas de liderança) pertencem à view atual ============ */
+function getScopedTeams(view){
+  let teams;
+  if(view === 'overview'){
+    teams = RAW_TEAMS.slice();
+    const f = getEntityFilter('overview');
+    if(f.areas) teams = teams.filter(t=>f.areas.has(t.areaSlug));
+    if(f.gerencias) teams = teams.filter(t=>f.gerencias.has(t.gerenciaSlug));
+    if(f.lideres) teams = teams.filter(t=>f.lideres.has(t.slug));
+  } else if(view.startsWith('area:')){
+    const areaSlug = view.slice(5);
+    teams = RAW_TEAMS.filter(t=>t.areaSlug===areaSlug);
+    const f = getEntityFilter(view);
+    if(f.gerencias) teams = teams.filter(t=>f.gerencias.has(t.gerenciaSlug));
+    if(f.lideres) teams = teams.filter(t=>f.lideres.has(t.slug));
+  } else if(view.startsWith('gerencia:')){
+    const gerSlug = view.slice(9);
+    teams = RAW_TEAMS.filter(t=>t.gerenciaSlug===gerSlug);
+    const f = getEntityFilter(view);
+    if(f.lideres) teams = teams.filter(t=>f.lideres.has(t.slug));
+  } else {
+    const team = teamBySlug[view];
+    teams = team ? [team] : [];
+  }
+  return teams;
+}
+
+/* ============ FILTRO DE DATA ============ */
 function populateMonthSelect(){
   const sel = document.getElementById('month-select');
   const prevValue = sel.value;
@@ -848,23 +976,19 @@ function populateMonthSelect(){
   sel.appendChild(optCustom);
   if([...sel.options].some(o=>o.value===prevValue)) sel.value = prevValue;
 }
-
 function onMonthChange(){
   const sel = document.getElementById('month-select');
   const v = sel.value;
   if(v===''){ state.dateFrom=null; state.dateTo=null; }
   else if(v!=='custom'){
     const [y,m] = v.split('-').map(Number);
-    const from = new Date(y, m-1, 1);
-    const to = new Date(y, m, 0);
-    state.dateFrom = from.toISOString().slice(0,10);
-    state.dateTo = to.toISOString().slice(0,10);
+    state.dateFrom = new Date(y, m-1, 1).toISOString().slice(0,10);
+    state.dateTo = new Date(y, m, 0).toISOString().slice(0,10);
   }
   document.getElementById('date-from').value = state.dateFrom || '';
   document.getElementById('date-to').value = state.dateTo || '';
   render();
 }
-
 function bindDateInputs(){
   const from = document.getElementById('date-from');
   const to = document.getElementById('date-to');
@@ -872,16 +996,112 @@ function bindDateInputs(){
   from.max = MAX_DATE || ''; to.max = MAX_DATE || '';
 }
 function onDateFromChange(){
-  const from = document.getElementById('date-from');
-  state.dateFrom = from.value || null;
+  state.dateFrom = document.getElementById('date-from').value || null;
   document.getElementById('month-select').value = 'custom';
   render();
 }
 function onDateToChange(){
-  const to = document.getElementById('date-to');
-  state.dateTo = to.value || null;
+  state.dateTo = document.getElementById('date-to').value || null;
   document.getElementById('month-select').value = 'custom';
   render();
+}
+
+/* ============ FILTROS DE ENTIDADE (Área / Gerência / Liderança) — checkbox multi-select ============ */
+function renderGenericMultiSelect(btnId, panelId, wrapId, options, currentSet, onChange){
+  const wrap = document.getElementById(wrapId);
+  const btn = document.getElementById(btnId);
+  const panel = document.getElementById(panelId);
+  if(!options || options.length === 0){ wrap.style.display = 'none'; return; }
+  wrap.style.display = 'flex';
+
+  const renderPanel = ()=>{
+    let html = `<div class="dropdown-actions">
+      <button type="button" id="${btnId}-all">Selecionar todos</button>
+      <button type="button" id="${btnId}-none">Limpar</button>
+    </div>`;
+    options.forEach(opt=>{
+      const checked = !currentSet || currentSet.has(opt.slug);
+      html += `<label class="chk-row"><input type="checkbox" ${checked?'checked':''} data-slug="${opt.slug}"> ${opt.label}</label>`;
+    });
+    panel.innerHTML = html;
+    panel.querySelectorAll('input[type=checkbox]').forEach(inp=>{
+      inp.addEventListener('change', ()=>{
+        let sel = currentSet ? new Set(currentSet) : new Set(options.map(o=>o.slug));
+        if(inp.checked) sel.add(inp.dataset.slug); else sel.delete(inp.dataset.slug);
+        if(sel.size === options.length) sel = null;
+        onChange(sel);
+      });
+    });
+    const allBtn = document.getElementById(`${btnId}-all`);
+    const noneBtn = document.getElementById(`${btnId}-none`);
+    if(allBtn) allBtn.addEventListener('click', ()=> onChange(null));
+    if(noneBtn) noneBtn.addEventListener('click', ()=> onChange(new Set()));
+  };
+  renderPanel();
+
+  const total = options.length;
+  const activeCount = currentSet ? currentSet.size : total;
+  btn.textContent = (activeCount===total ? 'Todas' : `${activeCount} de ${total}`) + ' ▾';
+
+  btn.onclick = (e)=>{ e.stopPropagation(); panel.classList.toggle('open'); };
+}
+
+function closeAllDropdownsExcept(exceptPanel){
+  document.querySelectorAll('.dropdown-panel.open').forEach(p=>{
+    if(p !== exceptPanel) p.classList.remove('open');
+  });
+}
+document.addEventListener('click', (e)=>{
+  document.querySelectorAll('.dropdown-panel.open').forEach(p=>{
+    const btn = document.getElementById(p.id.replace('-panel','-btn'));
+    if(!p.contains(e.target) && e.target !== btn) p.classList.remove('open');
+  });
+});
+
+function renderEntityFilters(){
+  const view = state.view;
+  const isOverview = view === 'overview';
+  const isArea = view.startsWith('area:');
+  const isGerencia = view.startsWith('gerencia:');
+  const isLeader = !isOverview && !isArea && !isGerencia;
+
+  // Área: só na visão geral
+  if(isOverview){
+    const f = getEntityFilter('overview');
+    const opts = RAW_AREAS.map(a=>({slug:a.slug, label:a.area}));
+    renderGenericMultiSelect('filter-area-btn','filter-area-panel','filter-area-wrap', opts, f.areas, (sel)=>{
+      f.areas = sel; render();
+    });
+  } else {
+    document.getElementById('filter-area-wrap').style.display = 'none';
+  }
+
+  // Gerência: na visão geral e na visão de área
+  if(isOverview || isArea){
+    const f = getEntityFilter(view);
+    let gerenciasPool = RAW_GERENCIAS;
+    if(isArea){ const area = areaBySlug[view.slice(5)]; gerenciasPool = area ? area.gerencias : []; }
+    const opts = gerenciasPool.map(g=>({slug:g.slug, label:g.gerencia}));
+    renderGenericMultiSelect('filter-gerencia-btn','filter-gerencia-panel','filter-gerencia-wrap', opts, f.gerencias, (sel)=>{
+      f.gerencias = sel; render();
+    });
+  } else {
+    document.getElementById('filter-gerencia-wrap').style.display = 'none';
+  }
+
+  // Liderança: na visão geral, de área e de gerência
+  if(isOverview || isArea || isGerencia){
+    const f = getEntityFilter(view);
+    let leadersPool = RAW_TEAMS;
+    if(isArea){ leadersPool = RAW_TEAMS.filter(t=>t.areaSlug===view.slice(5)); }
+    if(isGerencia){ leadersPool = RAW_TEAMS.filter(t=>t.gerenciaSlug===view.slice(9)); }
+    const opts = leadersPool.map(t=>({slug:t.slug, label:t.lider}));
+    renderGenericMultiSelect('filter-lider-btn','filter-lider-panel','filter-lider-wrap', opts, f.lideres, (sel)=>{
+      f.lideres = sel; render();
+    });
+  } else {
+    document.getElementById('filter-lider-wrap').style.display = 'none';
+  }
 }
 
 let filtersBound = false;
@@ -897,39 +1117,32 @@ function setupFilterListenersOnce(){
     document.getElementById('date-from').value = '';
     document.getElementById('date-to').value = '';
     document.getElementById('month-select').value = '';
+    state.entityFilters[state.view] = { areas:null, gerencias:null, lideres:null };
     if(state.view !== 'overview'){ state.selectedMembers[state.view] = null; }
     render();
   });
 
-  /* ---- member multi-select dropdown ---- */
   const memberBtn = document.getElementById('member-dropdown-btn');
   const memberPanel = document.getElementById('member-dropdown-panel');
   memberBtn.addEventListener('click', (e)=>{ e.stopPropagation(); memberPanel.classList.toggle('open'); });
-  document.addEventListener('click', (e)=>{
-    if(!memberPanel.contains(e.target) && e.target!==memberBtn) memberPanel.classList.remove('open');
-  });
   document.getElementById('member-select-all').addEventListener('click', ()=>{
     if(state.view==='overview') return;
     state.selectedMembers[state.view] = null;
-    renderMemberChecklist();
-    render();
+    renderMemberChecklist(); render();
   });
   document.getElementById('member-select-none').addEventListener('click', ()=>{
     if(state.view==='overview') return;
     state.selectedMembers[state.view] = new Set();
-    renderMemberChecklist();
-    render();
+    renderMemberChecklist(); render();
   });
 
   document.getElementById('refresh-data').addEventListener('click', init);
   document.getElementById('error-retry').addEventListener('click', init);
 
-  /* ---- modal ---- */
   document.getElementById('modal-close').addEventListener('click', ()=> document.getElementById('modal-overlay').classList.remove('open'));
   document.getElementById('modal-overlay').addEventListener('click', (e)=>{ if(e.target.id==='modal-overlay') e.currentTarget.classList.remove('open'); });
   document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') document.getElementById('modal-overlay').classList.remove('open'); });
 
-  /* ---- mobile menu ---- */
   document.getElementById('menu-toggle').addEventListener('click', ()=>{
     document.getElementById('sidebar').classList.add('open');
     document.getElementById('sidebar-scrim').classList.add('open');
@@ -940,19 +1153,12 @@ function setupFilterListenersOnce(){
   });
 }
 
+/* ============ FILTRO DE MEMBROS (nível folha, dentro de uma liderança/gerência/área) ============ */
 function membersForView(view){
-  if(view === 'overview'){
-    let arr = []; RAW_TEAMS.forEach(t => t.membros.forEach(m => arr.push({m, lider:t.lider})));
-    return arr;
-  }
-  if(view.startsWith('area:')){
-    const area = areaBySlug[view.slice(5)];
-    if(!area) return [];
-    let arr = []; area.leaders.forEach(t => t.membros.forEach(m => arr.push({m, lider:t.lider})));
-    return arr;
-  }
-  const team = teamBySlug[view];
-  return team ? team.membros.map(m => ({m, lider:null})) : [];
+  const teams = getScopedTeams(view);
+  let arr = [];
+  teams.forEach(t => t.membros.forEach(m => arr.push({m, team:t})));
+  return arr;
 }
 
 function renderMemberChecklist(){
@@ -962,17 +1168,15 @@ function renderMemberChecklist(){
   if(state.view === 'overview'){ wrap.style.display='none'; return; }
 
   const wrapped = membersForView(state.view);
-  if(wrapped.length === 0 && !(state.view.startsWith('area:') ? areaBySlug[state.view.slice(5)] : teamBySlug[state.view])){
-    wrap.style.display='none'; return;
-  }
   wrap.style.display='flex';
   const sel = state.selectedMembers[state.view];
   list.innerHTML='';
-  wrapped.forEach(({m,lider})=>{
+  wrapped.forEach(({m,team})=>{
     const row = document.createElement('label');
     row.className='chk-row';
     const checked = !sel || sel.has(m.email);
-    row.innerHTML = `<input type="checkbox" ${checked?'checked':''} data-email="${m.email}"> ${m.nome}${lider?`<span style="color:var(--text-muted);font-size:10.5px;"> · ${lider}</span>`:''}`;
+    const tag = state.view.startsWith('area:') || state.view.startsWith('gerencia:') ? ` <span style="color:var(--text-muted);font-size:10.5px;"> · ${team.lider}</span>` : '';
+    row.innerHTML = `<input type="checkbox" ${checked?'checked':''} data-email="${m.email}"> ${m.nome}${tag}`;
     list.appendChild(row);
   });
   list.querySelectorAll('input').forEach(inp=>{
@@ -990,7 +1194,7 @@ function renderMemberChecklist(){
   memberBtn.textContent = (activeCount===total ? 'Todos selecionados' : `${activeCount} de ${total}`) + ' ▾';
 }
 
-/* ============ SIDEBAR NAV (Visão geral → Área → Liderança) ============ */
+/* ============ SIDEBAR: Visão geral → Área → Gerência → Liderança ============ */
 function buildSidebar(){
   const ovUl = document.getElementById('nav-overview');
   ovUl.innerHTML = `<li class="nav-item" data-view="overview"><span class="nav-avatar">◎</span> Visão geral</li>`;
@@ -1001,30 +1205,44 @@ function buildSidebar(){
     const block = document.createElement('div');
     block.className = 'nav-area-block';
     block.dataset.areaSlug = area.slug;
-    const areaKey = 'area:' + area.slug;
-    const totalMembers = area.leaders.reduce((s,t)=>s+t.membros.length,0);
+    const totalMembersArea = area.gerencias.reduce((s,g)=>s+g.leaders.reduce((s2,t)=>s2+t.membros.length,0),0);
+
+    let gerenciasHtml = '';
+    area.gerencias.forEach(g=>{
+      const totalMembersGer = g.leaders.reduce((s,t)=>s+t.membros.length,0);
+      gerenciasHtml += `
+        <li class="nav-gerencia-block" data-gerencia-slug="${g.slug}">
+          <div class="nav-gerencia-item" data-view="gerencia:${g.slug}">
+            <span class="nav-gerencia-icon">◆</span>
+            <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${g.gerencia}</span>
+            <span class="nav-count">${totalMembersGer}</span>
+          </div>
+          <ul class="nav-sublevel">
+            ${g.leaders.map(t=>`
+              <li class="nav-item" data-view="${t.slug}">
+                <span class="nav-avatar">${initials(t.lider)}</span>
+                <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.lider}</span>
+                <span class="nav-count">${t.membros.length}</span>
+              </li>`).join('')}
+          </ul>
+        </li>`;
+    });
+
     block.innerHTML = `
-      <div class="nav-area-item" data-view="${areaKey}">
+      <div class="nav-area-item" data-view="area:${area.slug}">
         <span class="nav-area-icon">▦</span>
         <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${area.area}</span>
-        <span class="nav-count">${totalMembers}</span>
+        <span class="nav-count">${totalMembersArea}</span>
       </div>
-      <ul class="nav-leaders">
-        ${area.leaders.map(t=>`
-          <li class="nav-item" data-view="${t.slug}">
-            <span class="nav-avatar">${initials(t.lider)}</span>
-            <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.lider}</span>
-            <span class="nav-count">${t.membros.length}</span>
-          </li>`).join('')}
-      </ul>
+      <ul class="nav-sublevel">${gerenciasHtml}</ul>
     `;
     areasWrap.appendChild(block);
   });
 
-  document.querySelectorAll('.nav-item, .nav-area-item').forEach(el=>{
+  document.querySelectorAll('.nav-item, .nav-area-item, .nav-gerencia-item').forEach(el=>{
     el.addEventListener('click', ()=>{
       state.view = el.dataset.view;
-      document.querySelectorAll('.nav-item, .nav-area-item').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.nav-item, .nav-area-item, .nav-gerencia-item').forEach(x=>x.classList.remove('active'));
       el.classList.add('active');
       document.getElementById('sidebar').classList.remove('open');
       document.getElementById('sidebar-scrim').classList.remove('open');
@@ -1033,357 +1251,322 @@ function buildSidebar(){
     });
   });
 
-  // Modo travado por área: só mostra a área liberada, esconde "Visão geral" e as demais áreas
+  // Modo travado: restringe o que aparece no menu
   const overviewSection = document.getElementById('nav-overview-section');
   if(state.lockType === 'area'){
     if(overviewSection) overviewSection.style.display = 'none';
-    document.querySelectorAll('.nav-area-block').forEach(block=>{
-      block.style.display = (block.dataset.areaSlug === state.lockAreaSlug) ? '' : 'none';
+    document.querySelectorAll('.nav-area-block').forEach(b=>{
+      b.style.display = (b.dataset.areaSlug === state.lockAreaSlug) ? '' : 'none';
+    });
+  } else if(state.lockType === 'gerencia'){
+    if(overviewSection) overviewSection.style.display = 'none';
+    document.querySelectorAll('.nav-area-block').forEach(b=>{
+      const hasLockedGerencia = b.querySelector(`.nav-gerencia-block[data-gerencia-slug="${state.lockGerenciaSlug}"]`);
+      b.style.display = hasLockedGerencia ? '' : 'none';
+    });
+    document.querySelectorAll('.nav-gerencia-block').forEach(gb=>{
+      gb.style.display = (gb.dataset.gerenciaSlug === state.lockGerenciaSlug) ? '' : 'none';
     });
   } else {
     if(overviewSection) overviewSection.style.display = '';
-    document.querySelectorAll('.nav-area-block').forEach(block=>{ block.style.display = ''; });
+    document.querySelectorAll('.nav-area-block').forEach(b=>{ b.style.display = ''; });
+    document.querySelectorAll('.nav-gerencia-block').forEach(gb=>{ gb.style.display = ''; });
   }
 
   const isValidView = state.view === 'overview'
     || !!teamBySlug[state.view]
-    || (state.view.startsWith('area:') && !!areaBySlug[state.view.slice(5)]);
+    || (state.view.startsWith('area:') && !!areaBySlug[state.view.slice(5)])
+    || (state.view.startsWith('gerencia:') && !!gerenciaBySlug[state.view.slice(9)]);
   if(!isValidView) state.view = 'overview';
 
   let activeEl = null;
-  document.querySelectorAll('.nav-item, .nav-area-item').forEach(el=>{
+  document.querySelectorAll('.nav-item, .nav-area-item, .nav-gerencia-item').forEach(el=>{
     if(el.dataset.view === state.view) activeEl = el;
   });
   if(!activeEl) activeEl = document.querySelector('.nav-item[data-view="overview"]');
   if(activeEl) activeEl.classList.add('active');
 }
 
-/* ============ RENDER: OVERVIEW ============ */
-function renderOverview(container){
-  document.getElementById('view-title').textContent = 'Visão geral';
-  document.getElementById('view-sub').textContent = 'Consolidado de todos os times Redarbor na PipeLovers';
-
-  const stats = RAW_TEAMS.map(t=>({team:t, ...computeIndicators(t.membros)}));
-  const totalMembros = stats.reduce((s,x)=>s+x.total,0);
-  const totalAulas = stats.reduce((s,x)=>s+x.totalAulas,0);
-  const loggedTotal = stats.reduce((s,x)=>s+x.logged,0);
-  const threeTotal = stats.reduce((s,x)=>s+x.three,0);
-  const media = totalMembros ? (totalAulas/totalMembros).toFixed(1) : '0.0';
-  const loggedPct = totalMembros ? (loggedTotal/totalMembros*100) : 0;
-  const threePct = totalMembros ? (threeTotal/totalMembros*100) : 0;
-  let lastAccess=null;
-  stats.forEach(x=>{ if(x.lastAccess && (!lastAccess || x.lastAccess>lastAccess)) lastAccess=x.lastAccess; });
-
-  const teamsRankedByAulas = [...stats].sort((a,b)=>b.totalAulas-a.totalAulas);
-  const maxTeamVal = Math.max(1, ...teamsRankedByAulas.map(x=>x.totalAulas));
-  const teamsRankedByLogin = [...stats].sort((a,b)=>b.loggedPct-a.loggedPct);
-  const teamsRankedByThree = [...stats].sort((a,b)=>b.threePct-a.threePct);
-
-  let allMembers = [];
-  RAW_TEAMS.forEach(t=> t.membros.forEach(m=>{
-    const les = filteredLessons(m);
-    allMembers.push({nome:m.nome, lider:t.lider, total:les.length});
-  }));
-  allMembers.sort((a,b)=>b.total-a.total);
-  const topMembers = allMembers.slice(0,8);
-
-  const areaStats = RAW_AREAS.map(a=>{
-    let members=[]; a.leaders.forEach(t=>{ members = members.concat(t.membros); });
-    return { area:a, ...computeIndicators(members) };
-  }).sort((a,b)=>b.totalAulas-a.totalAulas);
-
-  container.innerHTML = `
-    <div class="team-banner">
-      <div>
-        <h2>Todos os times</h2>
-        <div class="desc">${RAW_AREAS.length} áreas · ${RAW_TEAMS.length} lideranças · ${totalMembros} membros mapeados</div>
-      </div>
-      <div class="period-chip">${periodLabel()}</div>
-    </div>
-
+/* ============ BLOCOS HTML REUTILIZÁVEIS ============ */
+function kpiCardsHtml(ind, extra){
+  const pdiCard = PDI_AVAILABLE ? `
+      <div class="kpi-card pct"><div class="kpi-label">Progresso médio do PDI</div><div class="kpi-value">${ind.pdiMembersCount ? ind.pdiAvgPct.toFixed(0)+'%' : '—'}</div><div class="kpi-sub">${ind.pdiMembersCount ? `${ind.pdiMembersCount} membro(s) com PDI atribuído` : 'Ninguém no filtro tem PDI atribuído'}</div></div>
+      <div class="kpi-card pct"><div class="kpi-label">% que concluiu o PDI</div><div class="kpi-value">${ind.pdiMembersCount ? ind.pdiCompletedPct.toFixed(0)+'%' : '—'}</div><div class="kpi-sub">${ind.pdiMembersCount ? `${ind.pdiCompletedCount} de ${ind.pdiMembersCount} com PDI` : ''}</div></div>` : '';
+  return `
     <div class="kpi-grid">
-      <div class="kpi-card"><div class="kpi-label">Membros mapeados</div><div class="kpi-value">${totalMembros}</div></div>
-      <div class="kpi-card"><div class="kpi-label">Aulas assistidas no período</div><div class="kpi-value">${totalAulas}</div></div>
-      <div class="kpi-card"><div class="kpi-label">Média de aulas / membro</div><div class="kpi-value">${media}</div></div>
-      <div class="kpi-card pct"><div class="kpi-label">% que logou no período</div><div class="kpi-value">${loggedPct.toFixed(0)}%</div><div class="kpi-sub">${loggedTotal} de ${totalMembros} membros</div></div>
-      <div class="kpi-card pct"><div class="kpi-label">% que assistiu 3+ aulas</div><div class="kpi-value">${threePct.toFixed(0)}%</div><div class="kpi-sub">${threeTotal} de ${totalMembros} membros</div></div>
-      <div class="kpi-card"><div class="kpi-label">Último acesso registrado</div><div class="kpi-value" style="font-size:18px;">${lastAccess?fmtDateBR(lastAccess):'—'}</div></div>
-    </div>
-
-    <div class="panel table-panel">
-      <div class="panel-head"><h3>Comparativo por área</h3><span class="hint">período selecionado</span></div>
-      <table>
-        <thead><tr><th>Área</th><th>Lideranças</th><th>Membros</th><th>Aulas no período</th><th>Média / membro</th><th>% que logou</th><th>% assistiu 3+ aulas</th></tr></thead>
-        <tbody>
-          ${areaStats.map(x=>`<tr>
-            <td style="color:#fff;font-weight:500;">${x.area.area}</td>
-            <td>${x.area.leaders.length}</td>
-            <td>${x.total}</td>
-            <td><span class="count-pill">${x.totalAulas}</span></td>
-            <td>${x.media.toFixed(1)}</td>
-            <td>${x.loggedPct.toFixed(0)}%</td>
-            <td>${x.threePct.toFixed(0)}%</td>
-          </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="charts-grid">
-      <div class="panel">
-        <div class="panel-head"><h3>Aulas assistidas por dia — todos os times</h3><span class="hint">período selecionado</span></div>
-        <div class="chart-wrap"><canvas id="chart-overview-trend"></canvas></div>
-      </div>
-      <div class="panel">
-        <div class="panel-head"><h3>Ranking de lideranças</h3><span class="hint">aulas no período</span></div>
-        <ul class="rank-list">
-          ${teamsRankedByAulas.map((x,i)=>`
-            <li class="rank-item">
-              <span class="rank-num">${i+1}</span>
-              <span class="rank-name">${x.team.lider} <span style="color:var(--text-muted);font-size:10px;">· ${x.team.area}</span></span>
-              <span class="rank-bar-track"><span class="rank-bar-fill" style="width:${(x.totalAulas/maxTeamVal*100).toFixed(0)}%"></span></span>
-              <span class="rank-value">${x.totalAulas}</span>
-            </li>`).join('')}
-        </ul>
-      </div>
-    </div>
-
-    <div class="charts-grid">
-      <div class="panel">
-        <div class="panel-head"><h3>Membros mais ativos</h3><span class="hint">top 8 · aulas no período</span></div>
-        <div class="chart-wrap"><canvas id="chart-overview-topmembers"></canvas></div>
-      </div>
-      <div class="panel">
-        <div class="panel-head"><h3>Membros ativos vs. sem consumo</h3><span class="hint">no período selecionado</span></div>
-        <div class="chart-wrap"><canvas id="chart-overview-donut"></canvas></div>
-      </div>
-    </div>
-
-    <div class="charts-grid">
-      <div class="panel">
-        <div class="panel-head"><h3>Ranking de lideranças — % que logou</h3><span class="hint">no período selecionado</span></div>
-        <ul class="rank-list">
-          ${teamsRankedByLogin.map((x,i)=>`
-            <li class="rank-item">
-              <span class="rank-num">${i+1}</span>
-              <span class="rank-name">${x.team.lider} <span style="color:var(--text-muted);font-size:10px;">· ${x.team.area}</span></span>
-              <span class="rank-bar-track"><span class="rank-bar-fill" style="width:${x.loggedPct.toFixed(0)}%"></span></span>
-              <span class="rank-value">${x.loggedPct.toFixed(0)}%</span>
-            </li>`).join('')}
-        </ul>
-      </div>
-      <div class="panel">
-        <div class="panel-head"><h3>Ranking de lideranças — % assistiu 3+ aulas</h3><span class="hint">no período selecionado</span></div>
-        <ul class="rank-list">
-          ${teamsRankedByThree.map((x,i)=>`
-            <li class="rank-item">
-              <span class="rank-num">${i+1}</span>
-              <span class="rank-name">${x.team.lider} <span style="color:var(--text-muted);font-size:10px;">· ${x.team.area}</span></span>
-              <span class="rank-bar-track"><span class="rank-bar-fill" style="width:${x.threePct.toFixed(0)}%"></span></span>
-              <span class="rank-value">${x.threePct.toFixed(0)}%</span>
-            </li>`).join('')}
-        </ul>
-      </div>
-    </div>
-  `;
-
-  renderTrendChart('chart-overview-trend', allTeamLessonsFlat());
-  renderBarChart('chart-overview-topmembers', topMembers.map(m=>m.nome), topMembers.map(m=>m.total));
-  renderDonutChart('chart-overview-donut', loggedTotal, totalMembros-loggedTotal);
-}
-
-function renderArea(container, area){
-  const viewKey = 'area:' + area.slug;
-  const totalMembrosArea = area.leaders.reduce((s,t)=>s+t.membros.length,0);
-  document.getElementById('view-title').textContent = area.area;
-  document.getElementById('view-sub').textContent = `Área · ${area.leaders.length} lideranças · ${totalMembrosArea} membros`;
-
-  let allWrapped = [];
-  area.leaders.forEach(t => t.membros.forEach(m => allWrapped.push({m, team:t})));
-  const visibleWrapped = allWrapped.filter(w => memberSelected(viewKey, w.m.email));
-  const visibleMembers = visibleWrapped.map(w=>w.m);
-  const ind = computeIndicators(visibleMembers);
-
-  const leaderStats = area.leaders.map(t=>{
-    const teamVisible = t.membros.filter(m=>memberSelected(viewKey, m.email));
-    return { team:t, ...computeIndicators(teamVisible) };
-  });
-  const rankedByAulas = [...leaderStats].sort((a,b)=>b.totalAulas-a.totalAulas);
-  const maxVal = Math.max(1, ...rankedByAulas.map(x=>x.totalAulas));
-  const rankedByLogin = [...leaderStats].sort((a,b)=>b.loggedPct-a.loggedPct);
-  const rankedByThree = [...leaderStats].sort((a,b)=>b.threePct-a.threePct);
-
-  let topMembers = visibleWrapped.map(w=>({nome:w.m.nome, lider:w.team.lider, total:filteredLessons(w.m).length}));
-  topMembers.sort((a,b)=>b.total-a.total);
-  topMembers = topMembers.slice(0,8);
-
-  const rankedMembersTable = visibleWrapped.map(w=>({m:w.m, lider:w.team.lider, total:filteredLessons(w.m).length}))
-    .sort((a,b)=>b.total-a.total);
-
-  container.innerHTML = `
-    <div class="team-banner">
-      <div>
-        <h2>${area.area}</h2>
-        <div class="desc">Área · ${area.leaders.length} lideranças neste agrupamento</div>
-      </div>
-      <div class="period-chip">${periodLabel()}</div>
-    </div>
-
-    <div class="kpi-grid">
-      <div class="kpi-card"><div class="kpi-label">Membros no filtro</div><div class="kpi-value">${ind.total}<span> / ${totalMembrosArea}</span></div></div>
+      <div class="kpi-card"><div class="kpi-label">Membros no filtro</div><div class="kpi-value">${ind.total}${extra&&extra.totalAll!==undefined?`<span> / ${extra.totalAll}</span>`:''}</div></div>
       <div class="kpi-card"><div class="kpi-label">Aulas assistidas no período</div><div class="kpi-value">${ind.totalAulas}</div></div>
       <div class="kpi-card"><div class="kpi-label">Média de aulas / membro</div><div class="kpi-value">${ind.media.toFixed(1)}</div></div>
       <div class="kpi-card pct"><div class="kpi-label">% que logou no período</div><div class="kpi-value">${ind.loggedPct.toFixed(0)}%</div><div class="kpi-sub">${ind.logged} de ${ind.total} membros</div></div>
       <div class="kpi-card pct"><div class="kpi-label">% que assistiu 3+ aulas</div><div class="kpi-value">${ind.threePct.toFixed(0)}%</div><div class="kpi-sub">${ind.three} de ${ind.total} membros</div></div>
       <div class="kpi-card"><div class="kpi-label">Último acesso registrado</div><div class="kpi-value" style="font-size:18px;">${ind.lastAccess?fmtDateBR(ind.lastAccess):'—'}</div></div>
+      ${pdiCard}
+    </div>`;
+}
+
+function rankListHtml(items, valueFmt){
+  const maxVal = Math.max(1, ...items.map(x=>x._sortVal));
+  return `<ul class="rank-list">
+    ${items.map((x,i)=>`
+      <li class="rank-item">
+        <span class="rank-num">${i+1}</span>
+        <span class="rank-name">${x._label}</span>
+        <span class="rank-bar-track"><span class="rank-bar-fill" style="width:${(x._sortVal/maxVal*100).toFixed(0)}%"></span></span>
+        <span class="rank-value">${valueFmt(x)}</span>
+      </li>`).join('')}
+  </ul>`;
+}
+
+function comparisonTableHtml(headerLabel, rows){
+  const pdiHeader = PDI_AVAILABLE ? '<th>Progresso médio do PDI</th>' : '';
+  return `<div class="panel table-panel">
+    <div class="panel-head"><h3>Comparativo por ${headerLabel}</h3><span class="hint">período selecionado</span></div>
+    <table>
+      <thead><tr><th>${headerLabel}</th><th>Lideranças</th><th>Membros</th><th>Aulas no período</th><th>Média / membro</th><th>% que logou</th><th>% assistiu 3+ aulas</th>${pdiHeader}</tr></thead>
+      <tbody>
+        ${rows.map(r=>`<tr>
+          <td style="color:#fff;font-weight:500;">${r.label}</td>
+          <td>${r.leaderCount}</td>
+          <td>${r.ind.total}</td>
+          <td><span class="count-pill">${r.ind.totalAulas}</span></td>
+          <td>${r.ind.media.toFixed(1)}</td>
+          <td>${r.ind.loggedPct.toFixed(0)}%</td>
+          <td>${r.ind.threePct.toFixed(0)}%</td>
+          ${PDI_AVAILABLE ? `<td>${r.ind.pdiMembersCount ? r.ind.pdiAvgPct.toFixed(0)+'% ('+r.ind.pdiMembersCount+' c/ PDI)' : '—'}</td>` : ''}
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function pdiPillHtml(m){
+  if(!PDI_AVAILABLE) return '';
+  if(!m.pdi) return `<td><span class="hint">Sem PDI</span></td>`;
+  const cls = m.pdi.pct>=100 ? 'active' : (m.pdi.pct>0 ? '' : 'zero');
+  return `<td><span class="count-pill ${cls}">${m.pdi.feitas}/${m.pdi.total} (${m.pdi.pct.toFixed(0)}%)</span></td>`;
+}
+function membersTableHtml(rows, cols){
+  // cols: array subset de ['area','gerencia','lider']
+  const extraHeaders = cols.map(c=>({area:'Área',gerencia:'Gerência',lider:'Liderança'}[c])).map(h=>`<th>${h}</th>`).join('');
+  const pdiHeader = PDI_AVAILABLE ? '<th>Progresso do PDI</th>' : '';
+  return `<div class="panel table-panel">
+    <div class="panel-head">
+      <h3>Membros</h3>
+      <span class="hint">clique em um membro para ver as aulas assistidas</span>
     </div>
+    <div class="tbl-scroll">
+    <table>
+      <thead><tr>
+        <th>Membro</th>${extraHeaders}<th>E-mail</th><th>Aulas no período</th><th>Último acesso</th>${pdiHeader}<th></th>
+      </tr></thead>
+      <tbody>
+        ${rows.map(({m,team,total})=>{
+          const activeInPeriod = total>0;
+          const extraCells = cols.map(c=>`<td>${({area:team.area,gerencia:team.gerencia,lider:team.lider})[c]}</td>`).join('');
+          return `<tr class="member-row" data-email="${m.email}" tabindex="0">
+            <td><div class="member-name"><span class="avatar">${initials(m.nome)}</span> <span><span class="status-dot ${activeInPeriod?'active':'inactive'}"></span>${m.nome}</span></div></td>
+            ${extraCells}
+            <td>${m.email}</td>
+            <td><span class="count-pill ${total===0?'zero':''}">${total}</span></td>
+            <td>${m.ultimoAcesso ? fmtDateBR(m.ultimoAcesso) : 'Sem acesso registrado'}</td>
+            ${pdiPillHtml(m)}
+            <td class="chevron">Ver aulas ›</td>
+          </tr>`;
+        }).join('') || `<tr><td colspan="${4+cols.length}"><div class="empty-note">Nenhum membro no filtro atual.</div></td></tr>`}
+      </tbody>
+    </table>
+    </div>
+  </div>`;
+}
+
+/* ============ RENDER: visão agregada (Overview / Área / Gerência) ============ */
+function renderScopedPage(container, opts){
+  const { viewKey, teams, memberCols } = opts;
+
+  const wrappedAll = [];
+  teams.forEach(t => t.membros.forEach(m => wrappedAll.push({m, team:t})));
+  const wrappedVisible = wrappedAll.filter(w => memberSelected(viewKey, w.m.email));
+  const visibleMembers = wrappedVisible.map(w=>w.m);
+  const ind = computeIndicators(visibleMembers);
+
+  const leaderStats = teams.map(t=>{
+    const teamVisible = t.membros.filter(m=>memberSelected(viewKey, m.email));
+    return { team: t, ...computeIndicators(teamVisible) };
+  }).filter(x=>x.total>0 || teams.length<=30);
+
+  const rankedByAulas = [...leaderStats].sort((a,b)=>b.totalAulas-a.totalAulas)
+    .map(x=>({ ...x, _label: x.team.lider, _sortVal: x.totalAulas }));
+  const rankedByLogin = [...leaderStats].sort((a,b)=>b.loggedPct-a.loggedPct)
+    .map(x=>({ ...x, _label: x.team.lider, _sortVal: x.loggedPct }));
+  const rankedByThree = [...leaderStats].sort((a,b)=>b.threePct-a.threePct)
+    .map(x=>({ ...x, _label: x.team.lider, _sortVal: x.threePct }));
+
+  let topMembers = wrappedVisible.map(w=>({nome:w.m.nome, total:filteredLessons(w.m).length}));
+  topMembers.sort((a,b)=>b.total-a.total);
+  topMembers = topMembers.slice(0,8);
+
+  const membersRows = wrappedVisible.map(w=>({m:w.m, team:w.team, total:filteredLessons(w.m).length}))
+    .sort((a,b)=>b.total-a.total);
+
+  container.innerHTML = `
+    <div class="team-banner">
+      <div>
+        <h2>${opts.title}</h2>
+        <div class="desc">${opts.subtitle}</div>
+      </div>
+      <div class="period-chip">${periodLabel()}</div>
+    </div>
+
+    ${kpiCardsHtml(ind)}
+
+    ${opts.extraComparisonHtml || ''}
 
     <div class="charts-grid">
       <div class="panel">
         <div class="panel-head"><h3>Aulas assistidas por dia</h3><span class="hint">período selecionado</span></div>
-        <div class="chart-wrap"><canvas id="chart-area-trend"></canvas></div>
+        <div class="chart-wrap"><canvas id="chart-${opts.chartPrefix}-trend"></canvas></div>
       </div>
       <div class="panel">
-        <div class="panel-head"><h3>Ranking de lideranças na área</h3><span class="hint">aulas no período</span></div>
-        <ul class="rank-list">
-          ${rankedByAulas.map((x,i)=>`
-            <li class="rank-item">
-              <span class="rank-num">${i+1}</span>
-              <span class="rank-name">${x.team.lider}</span>
-              <span class="rank-bar-track"><span class="rank-bar-fill" style="width:${(x.totalAulas/maxVal*100).toFixed(0)}%"></span></span>
-              <span class="rank-value">${x.totalAulas}</span>
-            </li>`).join('')}
-        </ul>
+        <div class="panel-head"><h3>Ranking de lideranças</h3><span class="hint">aulas no período</span></div>
+        ${rankedByAulas.length ? rankListHtml(rankedByAulas, x=>x.totalAulas) : '<div class="empty-note">Sem lideranças no filtro atual.</div>'}
       </div>
     </div>
 
     <div class="charts-grid">
       <div class="panel">
         <div class="panel-head"><h3>Membros mais ativos</h3><span class="hint">top 8 · aulas no período</span></div>
-        <div class="chart-wrap"><canvas id="chart-area-topmembers"></canvas></div>
+        <div class="chart-wrap"><canvas id="chart-${opts.chartPrefix}-topmembers"></canvas></div>
       </div>
       <div class="panel">
         <div class="panel-head"><h3>Membros ativos vs. sem consumo</h3><span class="hint">no período selecionado</span></div>
-        <div class="chart-wrap"><canvas id="chart-area-donut"></canvas></div>
+        <div class="chart-wrap"><canvas id="chart-${opts.chartPrefix}-donut"></canvas></div>
       </div>
     </div>
 
     <div class="charts-grid">
       <div class="panel">
         <div class="panel-head"><h3>Ranking de lideranças — % que logou</h3><span class="hint">no período selecionado</span></div>
-        <ul class="rank-list">
-          ${rankedByLogin.map((x,i)=>`
-            <li class="rank-item">
-              <span class="rank-num">${i+1}</span>
-              <span class="rank-name">${x.team.lider}</span>
-              <span class="rank-bar-track"><span class="rank-bar-fill" style="width:${x.loggedPct.toFixed(0)}%"></span></span>
-              <span class="rank-value">${x.loggedPct.toFixed(0)}%</span>
-            </li>`).join('')}
-        </ul>
+        ${rankedByLogin.length ? rankListHtml(rankedByLogin, x=>x.loggedPct.toFixed(0)+'%') : '<div class="empty-note">Sem lideranças no filtro atual.</div>'}
       </div>
       <div class="panel">
         <div class="panel-head"><h3>Ranking de lideranças — % assistiu 3+ aulas</h3><span class="hint">no período selecionado</span></div>
-        <ul class="rank-list">
-          ${rankedByThree.map((x,i)=>`
-            <li class="rank-item">
-              <span class="rank-num">${i+1}</span>
-              <span class="rank-name">${x.team.lider}</span>
-              <span class="rank-bar-track"><span class="rank-bar-fill" style="width:${x.threePct.toFixed(0)}%"></span></span>
-              <span class="rank-value">${x.threePct.toFixed(0)}%</span>
-            </li>`).join('')}
-        </ul>
+        ${rankedByThree.length ? rankListHtml(rankedByThree, x=>x.threePct.toFixed(0)+'%') : '<div class="empty-note">Sem lideranças no filtro atual.</div>'}
       </div>
     </div>
 
-    <div class="panel table-panel">
-      <div class="panel-head">
-        <h3>Membros da área</h3>
-        <span class="hint">clique em um membro para ver as aulas assistidas</span>
-      </div>
-      <div class="tbl-scroll">
-      <table>
-        <thead><tr>
-          <th>Membro</th><th>Liderança</th><th>E-mail</th><th>Aulas no período</th><th>Último acesso</th><th></th>
-        </tr></thead>
-        <tbody>
-          ${rankedMembersTable.map(({m,lider,total})=>{
-            const overallLast = m.ultimoAcesso;
-            const activeInPeriod = total>0;
-            return `<tr class="member-row" data-email="${m.email}" tabindex="0">
-              <td><div class="member-name"><span class="avatar">${initials(m.nome)}</span> <span><span class="status-dot ${activeInPeriod?'active':'inactive'}"></span>${m.nome}</span></div></td>
-              <td>${lider}</td>
-              <td>${m.email}</td>
-              <td><span class="count-pill ${total===0?'zero':''}">${total}</span></td>
-              <td>${overallLast ? fmtDateBR(overallLast) : 'Sem acesso registrado'}</td>
-              <td class="chevron">Ver aulas ›</td>
-            </tr>`;
-          }).join('') || `<tr><td colspan="6"><div class="empty-note">Nenhum membro selecionado no filtro.</div></td></tr>`}
-        </tbody>
-      </table>
-      </div>
-    </div>
+    ${membersTableHtml(membersRows, memberCols)}
   `;
 
   const lessonsFlat = [];
   visibleMembers.forEach(m=> filteredLessons(m).forEach(a=>lessonsFlat.push(a)));
-  renderTrendChart('chart-area-trend', lessonsFlat);
-  renderBarChart('chart-area-topmembers', topMembers.map(m=>m.nome), topMembers.map(m=>m.total));
-  renderDonutChart('chart-area-donut', ind.logged, ind.total-ind.logged);
+  renderTrendChart(`chart-${opts.chartPrefix}-trend`, lessonsFlat);
+  renderBarChart(`chart-${opts.chartPrefix}-topmembers`, topMembers.map(m=>m.nome), topMembers.map(m=>m.total));
+  renderDonutChart(`chart-${opts.chartPrefix}-donut`, ind.logged, ind.total-ind.logged);
 
   container.querySelectorAll('.member-row').forEach(row=>{
     const email = row.dataset.email;
-    const wrapObj = visibleWrapped.find(w=>w.m.email===email);
-    if(!wrapObj) return;
-    const open = ()=> openModal(wrapObj.team, email);
+    const w = wrappedVisible.find(x=>x.m.email===email);
+    if(!w) return;
+    const open = ()=> openModal(w.team, email);
     row.addEventListener('click', open);
     row.addEventListener('keypress', e=>{ if(e.key==='Enter') open(); });
   });
 }
 
-function computeIndicators(members){
-  const total = members.length;
-  let logged = 0, three = 0, totalAulas = 0, lastAccess = null;
-  members.forEach(m=>{
-    const les = filteredLessons(m);
-    totalAulas += les.length;
-    if(les.length > 0){
-      logged++;
-      les.forEach(a=>{ if(!lastAccess || a.iso > lastAccess) lastAccess = a.iso; });
-    }
-    if(les.length >= 3) three++;
+function renderOverview(container){
+  document.getElementById('view-title').textContent = 'Visão geral';
+  document.getElementById('view-sub').textContent = 'Consolidado de todas as áreas, gerências e lideranças';
+
+  const teams = getScopedTeams('overview');
+
+  // Comparativo por área
+  const areaGroups = new Map();
+  teams.forEach(t=>{
+    if(!areaGroups.has(t.areaSlug)) areaGroups.set(t.areaSlug, {label:t.area, leaders:new Set(), members:[]});
+    const g = areaGroups.get(t.areaSlug);
+    g.leaders.add(t.slug);
+    g.members = g.members.concat(t.membros.filter(m=>memberSelected('overview', m.email)));
   });
-  return {
-    total, totalMembros: total,
-    logged, activeMembers: logged,
-    loggedPct: total ? (logged/total*100) : 0,
-    three,
-    threePct: total ? (three/total*100) : 0,
-    totalAulas,
-    media: total ? (totalAulas/total) : 0,
-    lastAccess
-  };
+  const areaRows = [...areaGroups.values()].map(g=>({label:g.label, leaderCount:g.leaders.size, ind:computeIndicators(g.members)}))
+    .sort((a,b)=>b.ind.totalAulas-a.ind.totalAulas);
+
+  // Comparativo por gerência
+  const gerGroups = new Map();
+  teams.forEach(t=>{
+    if(!gerGroups.has(t.gerenciaSlug)) gerGroups.set(t.gerenciaSlug, {label:t.gerencia+' ('+t.area+')', leaders:new Set(), members:[]});
+    const g = gerGroups.get(t.gerenciaSlug);
+    g.leaders.add(t.slug);
+    g.members = g.members.concat(t.membros.filter(m=>memberSelected('overview', m.email)));
+  });
+  const gerRows = [...gerGroups.values()].map(g=>({label:g.label, leaderCount:g.leaders.size, ind:computeIndicators(g.members)}))
+    .sort((a,b)=>b.ind.totalAulas-a.ind.totalAulas);
+
+  const extraHtml = comparisonTableHtml('área', areaRows) + comparisonTableHtml('gerência', gerRows);
+
+  renderScopedPage(container, {
+    viewKey: 'overview',
+    teams,
+    title: 'Todas as áreas e lideranças',
+    subtitle: `${RAW_AREAS.length} áreas · ${RAW_GERENCIAS.length} gerências · ${RAW_TEAMS.length} lideranças`,
+    extraComparisonHtml: extraHtml,
+    chartPrefix: 'overview',
+    memberCols: ['area','gerencia','lider']
+  });
 }
 
-function allTeamLessonsFlat(){
-  const arr=[];
-  RAW_TEAMS.forEach(t=>t.membros.forEach(m=> filteredLessons(m).forEach(a=>arr.push(a))));
-  return arr;
+function renderArea(container, area){
+  document.getElementById('view-title').textContent = area.area;
+  document.getElementById('view-sub').textContent = `Área · ${area.gerencias.length} gerências`;
+
+  const viewKey = 'area:' + area.slug;
+  const teams = getScopedTeams(viewKey);
+
+  const gerGroups = new Map();
+  teams.forEach(t=>{
+    if(!gerGroups.has(t.gerenciaSlug)) gerGroups.set(t.gerenciaSlug, {label:t.gerencia, leaders:new Set(), members:[]});
+    const g = gerGroups.get(t.gerenciaSlug);
+    g.leaders.add(t.slug);
+    g.members = g.members.concat(t.membros.filter(m=>memberSelected(viewKey, m.email)));
+  });
+  const gerRows = [...gerGroups.values()].map(g=>({label:g.label, leaderCount:g.leaders.size, ind:computeIndicators(g.members)}))
+    .sort((a,b)=>b.ind.totalAulas-a.ind.totalAulas);
+
+  renderScopedPage(container, {
+    viewKey,
+    teams,
+    title: area.area,
+    subtitle: `Área · ${area.gerencias.length} gerências neste agrupamento`,
+    extraComparisonHtml: comparisonTableHtml('gerência', gerRows),
+    chartPrefix: 'area',
+    memberCols: ['gerencia','lider']
+  });
 }
 
-function periodLabel(){
-  if(!state.dateFrom && !state.dateTo) return 'Todo o período';
-  const f = state.dateFrom ? new Date(state.dateFrom+'T00:00:00').toLocaleDateString('pt-BR') : 'início';
-  const t = state.dateTo ? new Date(state.dateTo+'T00:00:00').toLocaleDateString('pt-BR') : 'hoje';
-  return `${f} — ${t}`;
+function renderGerencia(container, gerencia){
+  document.getElementById('view-title').textContent = gerencia.gerencia;
+  document.getElementById('view-sub').textContent = `${gerencia.area} · Gerência · ${gerencia.leaders.length} lideranças`;
+
+  const viewKey = 'gerencia:' + gerencia.slug;
+  const teams = getScopedTeams(viewKey);
+
+  renderScopedPage(container, {
+    viewKey,
+    teams,
+    title: gerencia.gerencia,
+    subtitle: `${gerencia.area} · Gerência · ${gerencia.leaders.length} lideranças`,
+    extraComparisonHtml: '',
+    chartPrefix: 'gerencia',
+    memberCols: ['lider']
+  });
 }
 
-/* ============ RENDER: TEAM ============ */
+/* ============ RENDER: Liderança (nível folha) ============ */
 function renderTeam(container, team){
   document.getElementById('view-title').textContent = team.lider;
-  document.getElementById('view-sub').textContent = `${team.area} · ${team.membros.length} membros`;
+  document.getElementById('view-sub').textContent = `${team.area} · ${team.gerencia} · ${team.membros.length} membros`;
 
   const visibleMembers = team.membros.filter(m=>memberSelected(team.slug, m.email));
   const ind = computeIndicators(visibleMembers);
-
   const rankedMembers = [...visibleMembers].map(m=>({m, total:filteredLessons(m).length}))
     .sort((a,b)=>b.total-a.total);
 
@@ -1391,7 +1574,7 @@ function renderTeam(container, team){
     <div class="team-banner">
       <div>
         <h2>${team.lider}</h2>
-        <div class="desc">Liderança · ${team.area} · ${team.membros.length} membros no time</div>
+        <div class="desc">Liderança · ${team.area} · ${team.gerencia} · ${team.membros.length} membros no time</div>
       </div>
       <div class="period-chip">${periodLabel()}</div>
     </div>
@@ -1423,18 +1606,15 @@ function renderTeam(container, team){
       </div>
       <div class="tbl-scroll">
       <table>
-        <thead><tr>
-          <th>Membro</th><th>E-mail</th><th>Aulas no período</th><th>Último acesso</th><th></th>
-        </tr></thead>
+        <thead><tr><th>Membro</th><th>E-mail</th><th>Aulas no período</th><th>Último acesso</th><th></th></tr></thead>
         <tbody>
           ${rankedMembers.map(({m,total})=>{
-            const overallLast = m.ultimoAcesso;
             const activeInPeriod = total>0;
             return `<tr class="member-row" data-email="${m.email}" tabindex="0">
               <td><div class="member-name"><span class="avatar">${initials(m.nome)}</span> <span><span class="status-dot ${activeInPeriod?'active':'inactive'}"></span>${m.nome}</span></div></td>
               <td>${m.email}</td>
               <td><span class="count-pill ${total===0?'zero':''}">${total}</span></td>
-              <td>${overallLast ? fmtDateBR(overallLast) : 'Sem acesso registrado'}</td>
+              <td>${m.ultimoAcesso ? fmtDateBR(m.ultimoAcesso) : 'Sem acesso registrado'}</td>
               <td class="chevron">Ver aulas ›</td>
             </tr>`;
           }).join('') || `<tr><td colspan="5"><div class="empty-note">Nenhum membro selecionado no filtro.</div></td></tr>`}
@@ -1458,7 +1638,6 @@ function renderTeam(container, team){
 
 /* ============ CHARTS ============ */
 function destroyChart(id){ if(charts[id]){ charts[id].destroy(); delete charts[id]; } }
-
 const CHART_FONT = { family:'Poppins', size:11 };
 function baseGridOpts(){
   return {
@@ -1469,7 +1648,6 @@ function baseGridOpts(){
     plugins:{ legend:{ display:false } }
   };
 }
-
 function renderTrendChart(canvasId, lessons){
   destroyChart(canvasId);
   const el = document.getElementById(canvasId);
@@ -1489,12 +1667,11 @@ function renderTrendChart(canvasId, lessons){
     options:{ ...baseGridOpts(), maintainAspectRatio:false, interaction:{intersect:false,mode:'index'} }
   });
 }
-
 function renderBarChart(canvasId, labels, values){
   destroyChart(canvasId);
   const el = document.getElementById(canvasId);
   if(!el) return;
-  if(values.every(v=>v===0)){
+  if(values.length===0 || values.every(v=>v===0)){
     el.parentElement.innerHTML = '<div class="empty-note">Sem aulas assistidas no período selecionado.</div>';
     return;
   }
@@ -1506,7 +1683,6 @@ function renderBarChart(canvasId, labels, values){
       plugins:{ legend:{display:false}, tooltip:{ callbacks:{ title:(items)=> labels[items[0].dataIndex] } } } }
   });
 }
-
 function renderDonutChart(canvasId, active, inactive){
   destroyChart(canvasId);
   const el = document.getElementById(canvasId);
@@ -1529,6 +1705,25 @@ function openModal(team, email){
   document.getElementById('modal-email').textContent = member.email;
   document.getElementById('modal-total').textContent = lessons.length;
   document.getElementById('modal-last').textContent = member.ultimoAcesso ? fmtDateShort(member.ultimoAcesso) : '—';
+  const pdiSection = document.getElementById('modal-pdi-section');
+  if(!PDI_AVAILABLE){
+    pdiSection.innerHTML = '';
+  } else if(!member.pdi){
+    pdiSection.innerHTML = `<div class="pdi-box"><div class="pdi-none-note">Este membro não possui PDI atribuído.</div></div>`;
+  } else {
+    const p = member.pdi;
+    pdiSection.innerHTML = `
+      <div class="pdi-box">
+        <div class="pdi-box-head"><h4>Progresso do PDI</h4><span class="pdi-box-pct">${p.feitas}/${p.total} · ${p.pct.toFixed(0)}%</span></div>
+        <div class="pdi-progress-track"><div class="pdi-progress-fill" style="width:${p.pct.toFixed(0)}%"></div></div>
+        <ul class="pdi-list">
+          ${p.aulas.map(a=>`<li class="pdi-item ${a.feita?'done':'pending'}">
+            <span class="pdi-check ${a.feita?'done':'pending'}">${a.feita?'✓':''}</span>
+            <span class="pdi-item-title">${a.nome}</span>
+          </li>`).join('')}
+        </ul>
+      </div>`;
+  }
   const list = document.getElementById('modal-lessons');
   if(lessons.length===0){
     list.innerHTML = '<div class="lesson-empty">Nenhuma aula assistida no período selecionado.</div>';
@@ -1538,13 +1733,16 @@ function openModal(team, email){
   document.getElementById('modal-overlay').classList.add('open');
 }
 
-/* ============ MAIN RENDER ============ */
+/* ============ MAIN RENDER DISPATCHER ============ */
 function render(){
   const container = document.getElementById('content');
+  renderEntityFilters();
   if(state.view === 'overview'){
     renderOverview(container);
   } else if(state.view.startsWith('area:') && areaBySlug[state.view.slice(5)]){
     renderArea(container, areaBySlug[state.view.slice(5)]);
+  } else if(state.view.startsWith('gerencia:') && gerenciaBySlug[state.view.slice(9)]){
+    renderGerencia(container, gerenciaBySlug[state.view.slice(9)]);
   } else if(teamBySlug[state.view]){
     renderTeam(container, teamBySlug[state.view]);
   } else {
@@ -1552,84 +1750,96 @@ function render(){
   }
 }
 
-/* ============ PDF EXPORT (por time ou todas as lideranças) ============ */
+/* ============ PDF EXPORT ============ */
+function printKpiBoxesHtml(ind){
+  const pdiBoxes = PDI_AVAILABLE ? `
+    <div class="print-kpi"><b>${ind.pdiMembersCount ? ind.pdiAvgPct.toFixed(0)+'%' : '—'}</b><span>Progresso médio do PDI</span></div>
+    <div class="print-kpi"><b>${ind.pdiMembersCount ? ind.pdiCompletedPct.toFixed(0)+'%' : '—'}</b><span>Concluíram o PDI (${ind.pdiCompletedCount}/${ind.pdiMembersCount})</span></div>` : '';
+  return `<div class="print-kpis">
+    <div class="print-kpi"><b>${ind.totalAulas}</b><span>Aulas no período</span></div>
+    <div class="print-kpi"><b>${ind.media.toFixed(1)}</b><span>Média por membro</span></div>
+    <div class="print-kpi"><b>${ind.loggedPct.toFixed(0)}%</b><span>Logaram no período</span></div>
+    <div class="print-kpi"><b>${ind.threePct.toFixed(0)}%</b><span>Assistiram 3+ aulas</span></div>
+    ${pdiBoxes}
+  </div>`;
+}
+
 function buildOverviewPrintPage(){
-  const stats = RAW_TEAMS.map(t=>({team:t, ...computeIndicators(t.membros)}));
-  const totalMembros = stats.reduce((s,x)=>s+x.total,0);
-  const totalAulas = stats.reduce((s,x)=>s+x.totalAulas,0);
-  const loggedTotal = stats.reduce((s,x)=>s+x.logged,0);
-  const threeTotal = stats.reduce((s,x)=>s+x.three,0);
-  const media = totalMembros ? (totalAulas/totalMembros).toFixed(1) : '0.0';
-  const loggedPct = totalMembros ? (loggedTotal/totalMembros*100) : 0;
-  const threePct = totalMembros ? (threeTotal/totalMembros*100) : 0;
+  const allMembers = [];
+  RAW_TEAMS.forEach(t=>t.membros.forEach(m=>allMembers.push(m)));
+  const ind = computeIndicators(allMembers);
 
-  const areaStats = RAW_AREAS.map(a=>{
-    let members=[]; a.leaders.forEach(t=>{ members = members.concat(t.membros); });
-    return { area:a, ...computeIndicators(members) };
-  }).sort((a,b)=>b.totalAulas-a.totalAulas);
-  const areaRows = areaStats.map(x=>`
-    <tr>
-      <td>${x.area.area}</td>
-      <td>${x.area.leaders.length}</td>
-      <td>${x.total}</td>
-      <td>${x.totalAulas}</td>
-      <td>${x.loggedPct.toFixed(0)}%</td>
-      <td>${x.threePct.toFixed(0)}%</td>
-    </tr>`).join('');
+  const areaGroups = new Map();
+  RAW_TEAMS.forEach(t=>{
+    if(!areaGroups.has(t.areaSlug)) areaGroups.set(t.areaSlug, {label:t.area, leaders:new Set(), members:[]});
+    const g = areaGroups.get(t.areaSlug); g.leaders.add(t.slug); g.members = g.members.concat(t.membros);
+  });
+  const pdiTh = PDI_AVAILABLE ? '<th>Progresso médio do PDI</th>' : '';
+  const pdiTd = x => PDI_AVAILABLE ? `<td>${x.ind.pdiMembersCount ? x.ind.pdiAvgPct.toFixed(0)+'%' : '—'}</td>` : '';
+  const areaRows = [...areaGroups.values()].map(g=>({label:g.label, n:g.leaders.size, ind:computeIndicators(g.members)}))
+    .sort((a,b)=>b.ind.totalAulas-a.ind.totalAulas)
+    .map(x=>`<tr><td>${x.label}</td><td>${x.n}</td><td>${x.ind.total}</td><td>${x.ind.totalAulas}</td><td>${x.ind.loggedPct.toFixed(0)}%</td><td>${x.ind.threePct.toFixed(0)}%</td>${pdiTd(x)}</tr>`).join('');
 
-  const rows = [...stats].sort((a,b)=>b.totalAulas-a.totalAulas).map(x=>`
-    <tr>
-      <td>${x.team.area}</td>
-      <td>${x.team.lider}</td>
-      <td>${x.total}</td>
-      <td>${x.totalAulas}</td>
-      <td>${x.loggedPct.toFixed(0)}%</td>
-      <td>${x.threePct.toFixed(0)}%</td>
-    </tr>`).join('');
+  const gerGroups = new Map();
+  RAW_TEAMS.forEach(t=>{
+    if(!gerGroups.has(t.gerenciaSlug)) gerGroups.set(t.gerenciaSlug, {label:t.gerencia+' ('+t.area+')', leaders:new Set(), members:[]});
+    const g = gerGroups.get(t.gerenciaSlug); g.leaders.add(t.slug); g.members = g.members.concat(t.membros);
+  });
+  const gerRows = [...gerGroups.values()].map(g=>({label:g.label, n:g.leaders.size, ind:computeIndicators(g.members)}))
+    .sort((a,b)=>b.ind.totalAulas-a.ind.totalAulas)
+    .map(x=>`<tr><td>${x.label}</td><td>${x.n}</td><td>${x.ind.total}</td><td>${x.ind.totalAulas}</td><td>${x.ind.loggedPct.toFixed(0)}%</td><td>${x.ind.threePct.toFixed(0)}%</td>${pdiTd(x)}</tr>`).join('');
+
   return `<section class="print-page">
-    <div class="print-title">PipeLovers × Redarbor — Visão geral (todas as áreas e lideranças)</div>
-    <div class="print-sub">Período: ${periodLabel()} · ${RAW_AREAS.length} áreas · ${RAW_TEAMS.length} lideranças · ${totalMembros} membros · Gerado em ${new Date().toLocaleString('pt-BR')}</div>
-    <div class="print-kpis">
-      <div class="print-kpi"><b>${totalAulas}</b><span>Aulas no período</span></div>
-      <div class="print-kpi"><b>${media}</b><span>Média por membro</span></div>
-      <div class="print-kpi"><b>${loggedPct.toFixed(0)}%</b><span>Logaram no período</span></div>
-      <div class="print-kpi"><b>${threePct.toFixed(0)}%</b><span>Assistiram 3+ aulas</span></div>
-    </div>
+    <div class="print-title">PipeLovers × Redarbor — Visão geral (todas as áreas, gerências e lideranças)</div>
+    <div class="print-sub">Período: ${periodLabel()} · ${RAW_AREAS.length} áreas · ${RAW_GERENCIAS.length} gerências · ${RAW_TEAMS.length} lideranças · ${ind.total} membros · Gerado em ${new Date().toLocaleString('pt-BR')}</div>
+    ${printKpiBoxesHtml(ind)}
     <table class="print-table">
-      <thead><tr><th>Área</th><th>Lideranças</th><th>Membros</th><th>Aulas no período</th><th>% que logou</th><th>% assistiu 3+ aulas</th></tr></thead>
+      <thead><tr><th>Área</th><th>Gerências</th><th>Membros</th><th>Aulas no período</th><th>% que logou</th><th>% assistiu 3+ aulas</th>${pdiTh}</tr></thead>
       <tbody>${areaRows}</tbody>
     </table>
-    <table class="print-table" style="margin-top:14px;">
-      <thead><tr><th>Área</th><th>Liderança</th><th>Membros</th><th>Aulas no período</th><th>% que logou</th><th>% assistiu 3+ aulas</th></tr></thead>
-      <tbody>${rows}</tbody>
+    <table class="print-table">
+      <thead><tr><th>Gerência</th><th>Lideranças</th><th>Membros</th><th>Aulas no período</th><th>% que logou</th><th>% assistiu 3+ aulas</th>${pdiTh}</tr></thead>
+      <tbody>${gerRows}</tbody>
     </table>
   </section>`;
 }
 
 function buildAreaPrintPage(area){
-  let members=[]; area.leaders.forEach(t=>{ members = members.concat(t.membros); });
+  const members = []; area.gerencias.forEach(g=>g.leaders.forEach(t=>t.membros.forEach(m=>members.push(m))));
   const ind = computeIndicators(members);
-  const leaderRows = area.leaders.map(t=>{
-    const li = computeIndicators(t.membros);
-    return `<tr>
-      <td>${t.lider}</td>
-      <td>${li.total}</td>
-      <td>${li.totalAulas}</td>
-      <td>${li.loggedPct.toFixed(0)}%</td>
-      <td>${li.threePct.toFixed(0)}%</td>
-    </tr>`;
+  const pdiTh = PDI_AVAILABLE ? '<th>Progresso médio do PDI</th>' : '';
+  const gerRows = area.gerencias.map(g=>{
+    const gMembers = []; g.leaders.forEach(t=>t.membros.forEach(m=>gMembers.push(m)));
+    const gi = computeIndicators(gMembers);
+    const pdiTd = PDI_AVAILABLE ? `<td>${gi.pdiMembersCount ? gi.pdiAvgPct.toFixed(0)+'%' : '—'}</td>` : '';
+    return `<tr><td>${g.gerencia}</td><td>${g.leaders.length}</td><td>${gi.total}</td><td>${gi.totalAulas}</td><td>${gi.loggedPct.toFixed(0)}%</td><td>${gi.threePct.toFixed(0)}%</td>${pdiTd}</tr>`;
   }).join('');
   return `<section class="print-page">
     <div class="print-title">PipeLovers × Redarbor — Área: ${area.area}</div>
-    <div class="print-sub">Período: ${periodLabel()} · ${area.leaders.length} lideranças · ${members.length} membros · Gerado em ${new Date().toLocaleString('pt-BR')}</div>
-    <div class="print-kpis">
-      <div class="print-kpi"><b>${ind.totalAulas}</b><span>Aulas no período</span></div>
-      <div class="print-kpi"><b>${ind.media.toFixed(1)}</b><span>Média por membro</span></div>
-      <div class="print-kpi"><b>${ind.loggedPct.toFixed(0)}%</b><span>Logaram no período</span></div>
-      <div class="print-kpi"><b>${ind.threePct.toFixed(0)}%</b><span>Assistiram 3+ aulas</span></div>
-    </div>
+    <div class="print-sub">Período: ${periodLabel()} · ${area.gerencias.length} gerências · ${members.length} membros · Gerado em ${new Date().toLocaleString('pt-BR')}</div>
+    ${printKpiBoxesHtml(ind)}
     <table class="print-table">
-      <thead><tr><th>Liderança</th><th>Membros</th><th>Aulas no período</th><th>% que logou</th><th>% assistiu 3+ aulas</th></tr></thead>
+      <thead><tr><th>Gerência</th><th>Lideranças</th><th>Membros</th><th>Aulas no período</th><th>% que logou</th><th>% assistiu 3+ aulas</th>${pdiTh}</tr></thead>
+      <tbody>${gerRows}</tbody>
+    </table>
+  </section>`;
+}
+
+function buildGerenciaPrintPage(gerencia){
+  const members = []; gerencia.leaders.forEach(t=>t.membros.forEach(m=>members.push(m)));
+  const ind = computeIndicators(members);
+  const pdiTh = PDI_AVAILABLE ? '<th>Progresso médio do PDI</th>' : '';
+  const leaderRows = gerencia.leaders.map(t=>{
+    const li = computeIndicators(t.membros);
+    const pdiTd = PDI_AVAILABLE ? `<td>${li.pdiMembersCount ? li.pdiAvgPct.toFixed(0)+'%' : '—'}</td>` : '';
+    return `<tr><td>${t.lider}</td><td>${li.total}</td><td>${li.totalAulas}</td><td>${li.loggedPct.toFixed(0)}%</td><td>${li.threePct.toFixed(0)}%</td>${pdiTd}</tr>`;
+  }).join('');
+  return `<section class="print-page">
+    <div class="print-title">PipeLovers × Redarbor — Gerência: ${gerencia.gerencia}</div>
+    <div class="print-sub">Área: ${gerencia.area} · Período: ${periodLabel()} · ${gerencia.leaders.length} lideranças · ${members.length} membros · Gerado em ${new Date().toLocaleString('pt-BR')}</div>
+    ${printKpiBoxesHtml(ind)}
+    <table class="print-table">
+      <thead><tr><th>Liderança</th><th>Membros</th><th>Aulas no período</th><th>% que logou</th><th>% assistiu 3+ aulas</th>${pdiTh}</tr></thead>
       <tbody>${leaderRows}</tbody>
     </table>
   </section>`;
@@ -1637,26 +1847,18 @@ function buildAreaPrintPage(area){
 
 function buildTeamPrintPage(team){
   const ind = computeIndicators(team.membros);
+  const pdiHeader = PDI_AVAILABLE ? '<th>Progresso do PDI</th>' : '';
   const rows = [...team.membros].sort((a,b)=>filteredLessons(b).length-filteredLessons(a).length).map(m=>{
     const total = filteredLessons(m).length;
-    return `<tr>
-      <td>${m.nome}</td>
-      <td>${m.email}</td>
-      <td>${total}</td>
-      <td>${m.ultimoAcesso ? fmtDateBR(m.ultimoAcesso) : 'Sem acesso registrado'}</td>
-    </tr>`;
+    const pdiCell = PDI_AVAILABLE ? `<td>${m.pdi ? `${m.pdi.feitas}/${m.pdi.total} (${m.pdi.pct.toFixed(0)}%)` : 'Sem PDI'}</td>` : '';
+    return `<tr><td>${m.nome}</td><td>${m.email}</td><td>${total}</td><td>${m.ultimoAcesso ? fmtDateBR(m.ultimoAcesso) : 'Sem acesso registrado'}</td>${pdiCell}</tr>`;
   }).join('');
   return `<section class="print-page">
     <div class="print-title">PipeLovers × Redarbor — ${team.lider}</div>
-    <div class="print-sub">Área: ${team.area} · Período: ${periodLabel()} · ${team.membros.length} membros no time · Gerado em ${new Date().toLocaleString('pt-BR')}</div>
-    <div class="print-kpis">
-      <div class="print-kpi"><b>${ind.totalAulas}</b><span>Aulas no período</span></div>
-      <div class="print-kpi"><b>${ind.media.toFixed(1)}</b><span>Média por membro</span></div>
-      <div class="print-kpi"><b>${ind.loggedPct.toFixed(0)}%</b><span>Logou no período</span></div>
-      <div class="print-kpi"><b>${ind.threePct.toFixed(0)}%</b><span>Assistiu 3+ aulas</span></div>
-    </div>
+    <div class="print-sub">Área: ${team.area} · Gerência: ${team.gerencia} · Período: ${periodLabel()} · ${team.membros.length} membros · Gerado em ${new Date().toLocaleString('pt-BR')}</div>
+    ${printKpiBoxesHtml(ind)}
     <table class="print-table">
-      <thead><tr><th>Membro</th><th>E-mail</th><th>Aulas no período</th><th>Último acesso</th></tr></thead>
+      <thead><tr><th>Membro</th><th>E-mail</th><th>Aulas no período</th><th>Último acesso</th>${pdiHeader}</tr></thead>
       <tbody>${rows}</tbody>
     </table>
   </section>`;
@@ -1669,13 +1871,25 @@ function buildPrintDoc(scope){
     html += buildOverviewPrintPage();
     RAW_AREAS.forEach(area=>{
       html += buildAreaPrintPage(area);
-      area.leaders.forEach(team => { html += buildTeamPrintPage(team); });
+      area.gerencias.forEach(g=>{
+        html += buildGerenciaPrintPage(g);
+        g.leaders.forEach(team=>{ html += buildTeamPrintPage(team); });
+      });
     });
   } else if(scope.startsWith('area:')){
     const area = areaBySlug[scope.slice(5)];
     if(area){
       html += buildAreaPrintPage(area);
-      area.leaders.forEach(team => { html += buildTeamPrintPage(team); });
+      area.gerencias.forEach(g=>{
+        html += buildGerenciaPrintPage(g);
+        g.leaders.forEach(team=>{ html += buildTeamPrintPage(team); });
+      });
+    }
+  } else if(scope.startsWith('gerencia:')){
+    const g = gerenciaBySlug[scope.slice(9)];
+    if(g){
+      html += buildGerenciaPrintPage(g);
+      g.leaders.forEach(team=>{ html += buildTeamPrintPage(team); });
     }
   } else {
     const team = teamBySlug[scope];
@@ -1684,14 +1898,13 @@ function buildPrintDoc(scope){
   root.innerHTML = html;
 }
 
-/* ============ CSV EXPORT (dados de consumo por pessoa) ============ */
+/* ============ CSV EXPORT ============ */
 function csvEscape(v){
   if(v===null || v===undefined) return '';
   const s = String(v);
   if(/[",;\n]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
   return s;
 }
-
 function csvRowsForTeam(team){
   const rows = [];
   team.membros.forEach(m=>{
@@ -1699,25 +1912,28 @@ function csvRowsForTeam(team){
     const logged = les.length>0 ? 'Sim' : 'Não';
     const three = les.length>=3 ? 'Sim' : 'Não';
     const ultimo = m.ultimoAcesso ? fmtDateBR(m.ultimoAcesso) : 'Sem acesso registrado';
+    const pdiCols = m.pdi ? ['Sim', m.pdi.total, m.pdi.feitas, m.pdi.pct.toFixed(0)+'%'] : ['Não', '', '', ''];
     if(les.length===0){
-      rows.push([team.area, team.lider, m.nome, m.email, 0, ultimo, logged, three, '', '']);
+      rows.push([team.area, team.gerencia, team.lider, m.nome, m.email, 0, ultimo, logged, three, ...pdiCols, '', '']);
     } else {
       les.forEach(a=>{
-        rows.push([team.area, team.lider, m.nome, m.email, les.length, ultimo, logged, three, a.titulo, fmtDateBR(a.iso)]);
+        rows.push([team.area, team.gerencia, team.lider, m.nome, m.email, les.length, ultimo, logged, three, ...pdiCols, a.titulo, fmtDateBR(a.iso)]);
       });
     }
   });
   return rows;
 }
-
 function buildCsvContent(scope){
-  const header = ['Area','Lideranca','Nome','Email','Aulas assistidas no periodo','Ultimo acesso','Logou no periodo','Assistiu 3+ aulas no periodo','Aula assistida','Data da aula'];
+  const header = ['Area','Gerencia','Lideranca','Nome','Email','Aulas assistidas no periodo','Ultimo acesso','Logou no periodo','Assistiu 3+ aulas no periodo','Possui PDI','Total de aulas do PDI','Aulas do PDI concluidas','% do PDI concluido','Aula assistida','Data da aula'];
   let rows = [];
   if(scope === 'all'){
     RAW_TEAMS.forEach(t => { rows = rows.concat(csvRowsForTeam(t)); });
   } else if(scope.startsWith('area:')){
     const area = areaBySlug[scope.slice(5)];
-    if(area) area.leaders.forEach(t => { rows = rows.concat(csvRowsForTeam(t)); });
+    if(area) area.gerencias.forEach(g=>g.leaders.forEach(t => { rows = rows.concat(csvRowsForTeam(t)); }));
+  } else if(scope.startsWith('gerencia:')){
+    const g = gerenciaBySlug[scope.slice(9)];
+    if(g) g.leaders.forEach(t => { rows = rows.concat(csvRowsForTeam(t)); });
   } else {
     const team = teamBySlug[scope];
     if(team) rows = csvRowsForTeam(team);
@@ -1725,13 +1941,12 @@ function buildCsvContent(scope){
   const lines = [header, ...rows].map(r => r.map(csvEscape).join(','));
   return '\uFEFF' + lines.join('\r\n');
 }
-
 function downloadCsv(scope){
   const csv = buildCsvContent(scope);
   const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  const scopeLabel = scope === 'all' ? 'todos-os-times' : scope.replace(':', '-');
+  const scopeLabel = scope === 'all' ? 'geral' : scope.replace(':', '-');
   const stamp = new Date().toISOString().slice(0,10);
   a.href = url;
   a.download = `consumo_${scopeLabel}_${stamp}.csv`;
@@ -1748,52 +1963,72 @@ function menuItemHtml(id, title, desc, icon){
 
 function renderExportMenu(){
   const panel = document.getElementById('export-dropdown-panel');
-  const currentTeam = teamBySlug[state.view];
-  const currentArea = state.view.startsWith('area:') ? areaBySlug[state.view.slice(5)] : null;
+  const view = state.view;
+  const currentTeam = teamBySlug[view];
+  const currentGerencia = view.startsWith('gerencia:') ? gerenciaBySlug[view.slice(9)] : null;
+  const currentArea = view.startsWith('area:') ? areaBySlug[view.slice(5)] : null;
   let html = '';
+
+  function addPair(id, label, desc){
+    html += menuItemHtml('export-pdf-'+id, 'PDF — '+label, desc, '📄');
+    html += menuItemHtml('export-csv-'+id, 'CSV — '+label, desc, '⭳');
+  }
 
   if(state.lockType === 'leader'){
     html += `<div class="menu-section-label">Meu time</div>`;
-    html += menuItemHtml('export-pdf-team','PDF — meu time', currentTeam ? currentTeam.lider : '', '📄');
-    html += menuItemHtml('export-csv-team','CSV — dados de consumo do meu time', currentTeam ? currentTeam.lider : '', '⭳');
-  } else if(state.lockType === 'area'){
-    const lockedArea = areaBySlug[state.lockAreaSlug];
-    html += `<div class="menu-section-label">Minha área</div>`;
-    html += menuItemHtml('export-pdf-area','PDF — minha área (todas as lideranças)', lockedArea ? lockedArea.area : '', '📄');
-    html += menuItemHtml('export-csv-area','CSV — dados de consumo da minha área', lockedArea ? lockedArea.area : '', '⭳');
+    addPair('team', 'meu time', currentTeam?currentTeam.lider:'');
+  } else if(state.lockType === 'gerencia'){
+    const ger = gerenciaBySlug[state.lockGerenciaSlug];
+    html += `<div class="menu-section-label">Minha gerência</div>`;
+    addPair('gerencia', 'minha gerência (todas as lideranças)', ger?ger.gerencia:'');
     if(currentTeam){
-      html += `<div class="menu-divider"></div>`;
-      html += `<div class="menu-section-label">Time atual</div>`;
-      html += menuItemHtml('export-pdf-team','PDF — este time', currentTeam.lider, '📄');
-      html += menuItemHtml('export-csv-team','CSV — este time', currentTeam.lider, '⭳');
+      html += `<div class="menu-divider"></div><div class="menu-section-label">Time atual</div>`;
+      addPair('team', 'este time', currentTeam.lider);
+    }
+  } else if(state.lockType === 'area'){
+    const ar = areaBySlug[state.lockAreaSlug];
+    html += `<div class="menu-section-label">Minha área</div>`;
+    addPair('area', 'minha área (todas as gerências)', ar?ar.area:'');
+    if(currentGerencia){
+      html += `<div class="menu-divider"></div><div class="menu-section-label">Gerência atual</div>`;
+      addPair('gerencia', 'esta gerência', currentGerencia.gerencia);
+    }
+    if(currentTeam){
+      html += `<div class="menu-divider"></div><div class="menu-section-label">Time atual</div>`;
+      addPair('team', 'este time', currentTeam.lider);
     }
   } else {
     if(currentTeam){
       html += `<div class="menu-section-label">Time atual</div>`;
-      html += menuItemHtml('export-pdf-team','PDF — este time', currentTeam.lider, '📄');
-      html += menuItemHtml('export-csv-team','CSV — este time', currentTeam.lider, '⭳');
+      addPair('team', 'este time', currentTeam.lider);
+      html += `<div class="menu-divider"></div>`;
+    }
+    if(currentGerencia){
+      html += `<div class="menu-section-label">Gerência atual</div>`;
+      addPair('gerencia', 'esta gerência', currentGerencia.gerencia);
       html += `<div class="menu-divider"></div>`;
     }
     if(currentArea){
       html += `<div class="menu-section-label">Área atual</div>`;
-      html += menuItemHtml('export-pdf-area','PDF — esta área (todas as lideranças)', currentArea.area, '📄');
-      html += menuItemHtml('export-csv-area','CSV — esta área', currentArea.area, '⭳');
+      addPair('area', 'esta área', currentArea.area);
       html += `<div class="menu-divider"></div>`;
     }
-    html += `<div class="menu-section-label">Tudo (todas as áreas e lideranças)</div>`;
-    html += menuItemHtml('export-pdf-all','PDF — geral', `${RAW_AREAS.length} áreas · ${RAW_TEAMS.length} lideranças`, '📄');
-    html += menuItemHtml('export-csv-all','CSV — geral', 'dados de consumo completos', '⭳');
+    html += `<div class="menu-section-label">Geral (tudo)</div>`;
+    addPair('all', 'geral', `${RAW_AREAS.length} áreas · ${RAW_GERENCIAS.length} gerências · ${RAW_TEAMS.length} lideranças`);
   }
+
   panel.innerHTML = html;
 
   const bind = (id, fn) => { const el = document.getElementById(id); if(el) el.addEventListener('click', fn); };
-  const areaScopeForExport = state.lockType === 'area'
-    ? ('area:' + state.lockAreaSlug)
-    : (currentArea ? ('area:' + currentArea.slug) : state.view);
-  bind('export-pdf-team', ()=>{ panel.classList.remove('open'); buildPrintDoc(state.view); window.print(); });
-  bind('export-csv-team', ()=>{ panel.classList.remove('open'); downloadCsv(state.view); });
-  bind('export-pdf-area', ()=>{ panel.classList.remove('open'); buildPrintDoc(areaScopeForExport); window.print(); });
-  bind('export-csv-area', ()=>{ panel.classList.remove('open'); downloadCsv(areaScopeForExport); });
+  const gerenciaScope = state.lockType==='gerencia' ? ('gerencia:'+state.lockGerenciaSlug) : (currentGerencia ? ('gerencia:'+currentGerencia.slug) : view);
+  const areaScope = state.lockType==='area' ? ('area:'+state.lockAreaSlug) : (currentArea ? ('area:'+currentArea.slug) : view);
+
+  bind('export-pdf-team', ()=>{ panel.classList.remove('open'); buildPrintDoc(view); window.print(); });
+  bind('export-csv-team', ()=>{ panel.classList.remove('open'); downloadCsv(view); });
+  bind('export-pdf-gerencia', ()=>{ panel.classList.remove('open'); buildPrintDoc(gerenciaScope); window.print(); });
+  bind('export-csv-gerencia', ()=>{ panel.classList.remove('open'); downloadCsv(gerenciaScope); });
+  bind('export-pdf-area', ()=>{ panel.classList.remove('open'); buildPrintDoc(areaScope); window.print(); });
+  bind('export-csv-area', ()=>{ panel.classList.remove('open'); downloadCsv(areaScope); });
   bind('export-pdf-all', ()=>{ panel.classList.remove('open'); buildPrintDoc('all'); window.print(); });
   bind('export-csv-all', ()=>{ panel.classList.remove('open'); downloadCsv('all'); });
 }
@@ -1801,31 +2036,24 @@ function renderExportMenu(){
 function setupExportDropdown(){
   const btn = document.getElementById('export-dropdown-btn');
   const panel = document.getElementById('export-dropdown-panel');
-  btn.addEventListener('click', (e)=>{
-    e.stopPropagation();
-    renderExportMenu();
-    panel.classList.toggle('open');
-  });
-  document.addEventListener('click', (e)=>{
-    if(!panel.contains(e.target) && e.target!==btn) panel.classList.remove('open');
-  });
+  btn.addEventListener('click', (e)=>{ e.stopPropagation(); renderExportMenu(); panel.classList.toggle('open'); });
 }
 
-/* ============ LINKS POR LIDERANÇA (somente na visão administrativa) ============ */
+/* ============ LINKS DE ACESSO (só na visão administrativa) ============ */
 function renderLinksMenu(){
   const panel = document.getElementById('links-dropdown-panel');
   const base = window.location.origin + window.location.pathname;
-  let html = `<div class="menu-section-label">Link geral (todas as áreas e lideranças)</div>
+  let html = `<div class="menu-section-label">Link geral (tudo)</div>
     <div class="link-row"><span class="lr-name">Visão completa / diretoria</span><button type="button" data-link="${base}">Copiar</button></div>`;
 
   RAW_AREAS.forEach(area=>{
-    const areaLink = `${base}?area=${encodeURIComponent(area.slug)}`;
-    html += `<div class="menu-divider"></div>
-      <div class="menu-section-label">Área: ${area.area}</div>
-      <div class="link-row"><span class="lr-name">🔗 Todas as lideranças desta área</span><button type="button" data-link="${areaLink}">Copiar</button></div>`;
-    area.leaders.forEach(t=>{
-      const link = `${base}?time=${encodeURIComponent(t.slug)}`;
-      html += `<div class="link-row"><span class="lr-name">${t.lider}</span><button type="button" data-link="${link}">Copiar</button></div>`;
+    html += `<div class="menu-divider"></div><div class="menu-section-label">Área: ${area.area}</div>`;
+    html += `<div class="link-row"><span class="lr-name">🔗 Toda a área (todas as gerências)</span><button type="button" data-link="${base}?area=${encodeURIComponent(area.slug)}">Copiar</button></div>`;
+    area.gerencias.forEach(g=>{
+      html += `<div class="link-row"><span class="lr-name">↳ ${g.gerencia} (gerência)</span><button type="button" data-link="${base}?gerencia=${encodeURIComponent(g.slug)}">Copiar</button></div>`;
+      g.leaders.forEach(t=>{
+        html += `<div class="link-row"><span class="lr-name" style="padding-left:14px;">${t.lider}</span><button type="button" data-link="${base}?time=${encodeURIComponent(t.slug)}">Copiar</button></div>`;
+      });
     });
   });
 
@@ -1847,24 +2075,16 @@ function renderLinksMenu(){
     });
   });
 }
-
 function setupLinksDropdown(){
   const btn = document.getElementById('links-dropdown-btn');
   const panel = document.getElementById('links-dropdown-panel');
   if(!btn || !panel) return;
-  btn.addEventListener('click', (e)=>{
-    e.stopPropagation();
-    renderLinksMenu();
-    panel.classList.toggle('open');
-  });
-  document.addEventListener('click', (e)=>{
-    if(!panel.contains(e.target) && e.target!==btn) panel.classList.remove('open');
-  });
+  btn.addEventListener('click', (e)=>{ e.stopPropagation(); renderLinksMenu(); panel.classList.toggle('open'); });
 }
 
-/* ============ MODO TRAVADO (link exclusivo de liderança ou de área) ============ */
+/* ============ MODO TRAVADO (link exclusivo de liderança / gerência / área) ============ */
 function applyAccessMode(){
-  const { time: timeSlug, area: areaSlug } = getUrlLockParams();
+  const { time, gerencia, area } = getUrlLockParams();
   const appRoot = document.getElementById('app-root');
   const linksWrap = document.getElementById('links-dropdown-wrap');
   const chip = document.getElementById('locked-chip');
@@ -1872,31 +2092,26 @@ function applyAccessMode(){
   state.locked = false;
   state.lockType = 'none';
   state.lockAreaSlug = null;
+  state.lockGerenciaSlug = null;
   state.lockedInvalid = false;
   appRoot.classList.remove('locked');
-  appRoot.classList.remove('area-locked');
 
-  if(timeSlug){
-    if(teamBySlug[timeSlug]){
-      state.locked = true;
-      state.lockType = 'leader';
-      state.view = timeSlug;
+  if(time){
+    if(teamBySlug[time]){
+      state.locked = true; state.lockType = 'leader'; state.view = time;
       appRoot.classList.add('locked');
-      if(chip){ chip.style.display = 'inline-block'; chip.textContent = `🔒 ${teamBySlug[timeSlug].lider}`; }
-    } else {
-      state.lockedInvalid = true;
-    }
-  } else if(areaSlug){
-    if(areaBySlug[areaSlug]){
-      state.locked = true;
-      state.lockType = 'area';
-      state.lockAreaSlug = areaSlug;
-      state.view = 'area:' + areaSlug;
-      appRoot.classList.add('area-locked');
-      if(chip){ chip.style.display = 'inline-block'; chip.textContent = `🔒 Área ${areaBySlug[areaSlug].area}`; }
-    } else {
-      state.lockedInvalid = true;
-    }
+      if(chip){ chip.style.display='inline-block'; chip.textContent = `🔒 ${teamBySlug[time].lider}`; }
+    } else { state.lockedInvalid = true; }
+  } else if(gerencia){
+    if(gerenciaBySlug[gerencia]){
+      state.locked = true; state.lockType = 'gerencia'; state.lockGerenciaSlug = gerencia; state.view = 'gerencia:' + gerencia;
+      if(chip){ chip.style.display='inline-block'; chip.textContent = `🔒 Gerência ${gerenciaBySlug[gerencia].gerencia}`; }
+    } else { state.lockedInvalid = true; }
+  } else if(area){
+    if(areaBySlug[area]){
+      state.locked = true; state.lockType = 'area'; state.lockAreaSlug = area; state.view = 'area:' + area;
+      if(chip){ chip.style.display='inline-block'; chip.textContent = `🔒 Área ${areaBySlug[area].area}`; }
+    } else { state.lockedInvalid = true; }
   }
 
   if(!state.locked && chip) chip.style.display = 'none';
@@ -1920,7 +2135,10 @@ function renderDataStatus(result){
     extra += `<span title="${result.unmatched.join(', ')}">⚠ ${result.unmatched.length} e-mail(s) do consumo não encontrados na lista de membros</span>`;
   }
   if(state.lockedInvalid){
-    extra += `<span style="color:var(--warn);">⚠ Link de liderança/área não encontrado — mostrando a visão geral.</span>`;
+    extra += `<span style="color:var(--warn);">⚠ Link de acesso não encontrado — mostrando a visão geral.</span>`;
+  }
+  if(!result.pdiAvailable){
+    extra += `<span style="color:var(--warn);">⚠ Arquivo "${CFG.pdiPath}" não encontrado — indicador de PDI desativado.</span>`;
   }
   el.innerHTML = `
     <span><span class="dot"></span>Dados carregados às ${time}</span>
@@ -1937,7 +2155,9 @@ async function init(){
   try {
     const result = await loadAllData();
     RAW_TEAMS = result.teams;
+    RAW_GERENCIAS = result.gerencias;
     RAW_AREAS = result.areas;
+    PDI_AVAILABLE = result.pdiAvailable;
     deriveGlobals();
     applyAccessMode();
     renderDataStatus(result);
