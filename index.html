@@ -749,19 +749,54 @@ async function loadAllData(){
   const membersRows = parseCSV(membersText);
 
   setLoadingSub(`Listando arquivos em "${CFG.attendanceFolder}/"…`);
-  const listRes = await fetch(apiUrl, { cache:'no-store' });
-  if(!listRes.ok){
-    throw new Error(
-      `Não consegui listar a pasta "${CFG.attendanceFolder}/" (HTTP ${listRes.status}).\n` +
-      'Verifique se o repositório é público, e se owner/repo/branch estão corretos no bloco de configuração.'
+  // 1ª tentativa: data/manifest.json (gerado automaticamente pelo GitHub Actions a cada upload).
+  // Isso evita depender da API do GitHub (api.github.com), que tem limite de 60 requisições/hora
+  // por IP quando anônima — com vários acessos ao painel esse limite estoura e a página trava com HTTP 403.
+  let csvFiles = null;
+  let usedManifest = false;
+  try {
+    const manifestText = await fetchText(`${rawBase}/${CFG.attendanceFolder}/manifest.json`);
+    const manifestList = JSON.parse(manifestText);
+    if(Array.isArray(manifestList) && manifestList.length){
+      csvFiles = manifestList
+        .filter(item => item && typeof item.name === 'string' &&
+          item.name.toLowerCase().endsWith('.csv') &&
+          item.name.toLowerCase().startsWith(CFG.attendancePrefix.toLowerCase()))
+        .map(item => ({ name: item.name, download_url: `${rawBase}/${CFG.attendanceFolder}/${item.name}` }));
+      usedManifest = true;
+    }
+  } catch(e){
+    csvFiles = null; // manifest ainda não existe ou não pôde ser lido — cai no plano B abaixo
+  }
+
+  // Plano B (compatibilidade): se o manifest não existir ainda, tenta listar via API do GitHub.
+  // Sujeito ao limite de 60 requisições/hora por IP (anônimo) — por isso não é mais o caminho principal.
+  if(csvFiles === null){
+    const listRes = await fetch(apiUrl, { cache:'no-store' });
+    if(!listRes.ok){
+      if(listRes.status === 403){
+        throw new Error(
+          `Não consegui listar a pasta "${CFG.attendanceFolder}/": o limite de requisições anônimas da API do GitHub ` +
+          `(60 por hora, por IP) foi atingido (HTTP 403).\n\n` +
+          `Para resolver de forma definitiva: adicione o workflow do GitHub Actions ` +
+          `".github/workflows/build-data-manifest.yml" ao repositório (gera "${CFG.attendanceFolder}/manifest.json" ` +
+          `automaticamente a cada upload) — assim o painel para de depender dessa API. ` +
+          `Enquanto isso, aguarde alguns minutos e atualize a página.`
+        );
+      }
+      throw new Error(
+        `Não consegui listar a pasta "${CFG.attendanceFolder}/" (HTTP ${listRes.status}).\n` +
+        'Verifique se o repositório é público, e se owner/repo/branch estão corretos no bloco de configuração.'
+      );
+    }
+    const listing = await listRes.json();
+    csvFiles = (Array.isArray(listing) ? listing : []).filter(item =>
+      item.type === 'file' &&
+      item.name.toLowerCase().endsWith('.csv') &&
+      item.name.toLowerCase().startsWith(CFG.attendancePrefix.toLowerCase())
     );
   }
-  const listing = await listRes.json();
-  const csvFiles = (Array.isArray(listing) ? listing : []).filter(item =>
-    item.type === 'file' &&
-    item.name.toLowerCase().endsWith('.csv') &&
-    item.name.toLowerCase().startsWith(CFG.attendancePrefix.toLowerCase())
-  );
+
   if(csvFiles.length === 0){
     throw new Error(
       `Nenhum arquivo "${CFG.attendancePrefix}*.csv" encontrado em "${CFG.attendanceFolder}/".\n` +
@@ -798,6 +833,7 @@ async function loadAllData(){
     totalRows: attendanceRows.length,
     dedupCount, unmatched,
     pdiAvailable,
+    usedManifest,
     loadedAt: new Date()
   };
 }
@@ -2139,6 +2175,9 @@ function renderDataStatus(result){
   }
   if(!result.pdiAvailable){
     extra += `<span style="color:var(--warn);">⚠ Arquivo "${CFG.pdiPath}" não encontrado — indicador de PDI desativado.</span>`;
+  }
+  if(!result.usedManifest){
+    extra += `<span style="color:var(--warn);">⚠ "data/manifest.json" não encontrado — usando a API do GitHub (limite de 60 requisições/hora). Configure o workflow do GitHub Actions para evitar erros de carregamento.</span>`;
   }
   el.innerHTML = `
     <span><span class="dot"></span>Dados carregados às ${time}</span>
