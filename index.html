@@ -1688,6 +1688,7 @@ function renderTrendChart(canvasId, lessons){
   destroyChart(canvasId);
   const el = document.getElementById(canvasId);
   if(!el) return;
+  if(typeof Chart === 'undefined'){ chartUnavailableNote(el); return; }
   if(lessons.length===0){
     el.parentElement.innerHTML = '<div class="empty-note">Sem aulas assistidas no período selecionado.</div>';
     return;
@@ -1695,41 +1696,52 @@ function renderTrendChart(canvasId, lessons){
   const byDay = {};
   lessons.forEach(a=>{ const d=a.iso.slice(0,10); byDay[d]=(byDay[d]||0)+1; });
   const days = Object.keys(byDay).sort();
-  charts[canvasId] = new Chart(el.getContext('2d'), {
-    type:'line',
-    data:{ labels:days.map(d=>new Date(d+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})),
-      datasets:[{ data:days.map(d=>byDay[d]), borderColor:'#266ef2', backgroundColor:'rgba(38,110,242,.18)',
-        fill:true, tension:.35, pointRadius:3, pointBackgroundColor:'#266ef2', pointBorderColor:'#0f052e', pointBorderWidth:2 }] },
-    options:{ ...baseGridOpts(), maintainAspectRatio:false, interaction:{intersect:false,mode:'index'} }
-  });
+  try {
+    charts[canvasId] = new Chart(el.getContext('2d'), {
+      type:'line',
+      data:{ labels:days.map(d=>new Date(d+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})),
+        datasets:[{ data:days.map(d=>byDay[d]), borderColor:'#266ef2', backgroundColor:'rgba(38,110,242,.18)',
+          fill:true, tension:.35, pointRadius:3, pointBackgroundColor:'#266ef2', pointBorderColor:'#0f052e', pointBorderWidth:2 }] },
+      options:{ ...baseGridOpts(), maintainAspectRatio:false, interaction:{intersect:false,mode:'index'} }
+    });
+  } catch(e){ console.error('Falha ao desenhar gráfico:', e); chartUnavailableNote(el); }
 }
 function renderBarChart(canvasId, labels, values){
   destroyChart(canvasId);
   const el = document.getElementById(canvasId);
   if(!el) return;
+  if(typeof Chart === 'undefined'){ chartUnavailableNote(el); return; }
   if(values.length===0 || values.every(v=>v===0)){
     el.parentElement.innerHTML = '<div class="empty-note">Sem aulas assistidas no período selecionado.</div>';
     return;
   }
   const short = labels.map(l=> l.length>16 ? l.split(' ')[0]+' '+(l.split(' ')[1]||'').slice(0,1)+'.' : l);
-  charts[canvasId] = new Chart(el.getContext('2d'), {
-    type:'bar',
-    data:{ labels: short, datasets:[{ data:values, backgroundColor:'#266ef2', borderRadius:6, maxBarThickness:26 }] },
-    options:{ ...baseGridOpts(), maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ title:(items)=> labels[items[0].dataIndex] } } } }
-  });
+  try {
+    charts[canvasId] = new Chart(el.getContext('2d'), {
+      type:'bar',
+      data:{ labels: short, datasets:[{ data:values, backgroundColor:'#266ef2', borderRadius:6, maxBarThickness:26 }] },
+      options:{ ...baseGridOpts(), maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ title:(items)=> labels[items[0].dataIndex] } } } }
+    });
+  } catch(e){ console.error('Falha ao desenhar gráfico:', e); chartUnavailableNote(el); }
 }
 function renderDonutChart(canvasId, active, inactive){
   destroyChart(canvasId);
   const el = document.getElementById(canvasId);
   if(!el) return;
-  charts[canvasId] = new Chart(el.getContext('2d'), {
-    type:'doughnut',
-    data:{ labels:['Ativos no período','Sem consumo'], datasets:[{ data:[active,inactive],
-      backgroundColor:['#266ef2','#2c1c66'], borderColor:'#170c42', borderWidth:3 }] },
-    options:{ maintainAspectRatio:false, cutout:'68%',
-      plugins:{ legend:{ position:'bottom', labels:{ color:'#a7aed1', font:CHART_FONT, boxWidth:10, padding:14 } } } }
-  });
+  if(typeof Chart === 'undefined'){ chartUnavailableNote(el); return; }
+  try {
+    charts[canvasId] = new Chart(el.getContext('2d'), {
+      type:'doughnut',
+      data:{ labels:['Ativos no período','Sem consumo'], datasets:[{ data:[active,inactive],
+        backgroundColor:['#266ef2','#2c1c66'], borderColor:'#170c42', borderWidth:3 }] },
+      options:{ maintainAspectRatio:false, cutout:'68%',
+        plugins:{ legend:{ position:'bottom', labels:{ color:'#a7aed1', font:CHART_FONT, boxWidth:10, padding:14 } } } }
+    });
+  } catch(e){ console.error('Falha ao desenhar gráfico:', e); chartUnavailableNote(el); }
+}
+function chartUnavailableNote(el){
+  el.parentElement.innerHTML = '<div class="empty-note">Gráfico indisponível no momento (biblioteca de gráficos não carregou — verifique sua conexão). Os demais dados do painel continuam normais.</div>';
 }
 
 /* ============ MODAL ============ */
@@ -2191,8 +2203,17 @@ function renderDataStatus(result){
 async function init(){
   showLoading(true);
   hideError();
+  let result;
   try {
-    const result = await loadAllData();
+    result = await loadAllData();
+  } catch(err){
+    // Falha real ao buscar os dados (membros.csv, redarbor*.csv, etc.) — aqui sim é um erro fatal.
+    showLoading(false);
+    showError(err);
+    console.error(err);
+    return;
+  }
+  try {
     RAW_TEAMS = result.teams;
     RAW_GERENCIAS = result.gerencias;
     RAW_AREAS = result.areas;
@@ -2210,9 +2231,10 @@ async function init(){
     render();
     showLoading(false);
   } catch(err){
+    // Os dados já foram carregados com sucesso — um erro aqui é de renderização (ex.: gráfico),
+    // não de dados. Não escondemos o painel atrás da tela de erro fatal; só registramos no console.
     showLoading(false);
-    showError(err);
-    console.error(err);
+    console.error('Erro ao renderizar (dados já carregados normalmente):', err);
   }
 }
 
