@@ -1,5 +1,14 @@
 [
-  {"name": "membros.csv"},
-  {"name": "pdi.csv"},
-  {"name": "redarbor.csv"}
+  {
+    "name": "membros.csv"
+  },
+  {
+    "name": "pdi.csv"
+  },
+  {
+    "name": "redarbor.csv"
+  },
+  {
+    "name": "redarbor_supabase.csv"
+  }
 ]
