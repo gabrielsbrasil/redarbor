@@ -1,0 +1,44 @@
+name: Atualizar consumo Redarbor via Supabase
+
+# Roda automaticamente 1x por dia (ajuste o horário se quiser) e também
+# permite disparo manual em Actions -> Atualizar consumo Redarbor via Supabase -> Run workflow.
+on:
+  schedule:
+    - cron: '0 9 * * *'   # 09:00 UTC = 06:00 em Brasília. Ajuste se quiser outro horário.
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  atualizar-consumo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependências
+        run: pip install requests
+
+      - name: Gerar data/redarbor_supabase.csv a partir do Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python gerar_redarbor.py
+
+      - name: Commitar o CSV atualizado (se algo mudou)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/redarbor_supabase.csv
+          if git diff --cached --quiet; then
+            echo "Nada mudou no consumo, não é preciso commitar."
+          else
+            git commit -m "auto: atualiza consumo Redarbor via Supabase $(date +'%d/%m/%Y %H:%M')"
+            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          fi
