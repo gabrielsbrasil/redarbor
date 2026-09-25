@@ -1,6 +1,7 @@
 """
 PipeLovers / Redarbor — gera data/redarbor_supabase.csv a partir da view
-"vw_consumo_completo" do Supabase.
+"vw_consumo_completo" do Supabase, filtrado pela conta do Redarbor/Catho
+(id_conta = 382).
 
 Substitui o upload manual diário do CSV de consumo (redarbor_AAAA-MM-DD.csv).
 A partir de agora, quem alimenta o painel é este script, rodado automaticamente
@@ -27,11 +28,14 @@ SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
 SUPABASE_SERVICE_ROLE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
 
 VIEW_NAME = "vw_consumo_completo"
+ID_CONTA = 382  # Redarbor / Catho
+
 # Nomes das colunas na view (ajuste se forem diferentes no seu Supabase)
 COL_EMAIL = "member_email"
 COL_NAME = "member_name"
 COL_CONTENT = "content_title"
 COL_DATE = "completed_at"
+COL_ID_CONTA = "id_conta"
 
 OUTPUT_PATH = "data/redarbor_supabase.csv"
 PAGE_SIZE = 1000
@@ -48,13 +52,14 @@ def fetch_all_rows():
         "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
     }
     base = f"{SUPABASE_URL}/rest/v1/{VIEW_NAME}"
-    select_cols = f"{COL_EMAIL},{COL_NAME},{COL_CONTENT},{COL_DATE}"
+    select_cols = f"{COL_EMAIL},{COL_NAME},{COL_CONTENT},{COL_DATE},{COL_ID_CONTA}"
 
     all_rows = []
     offset = 0
     while True:
         params = {
             "select": select_cols,
+            COL_ID_CONTA: f"eq.{ID_CONTA}",
             "order": f"{COL_DATE}.asc",
             "limit": PAGE_SIZE,
             "offset": offset,
@@ -87,7 +92,7 @@ def to_br_datetime(iso_str):
 
 
 def main():
-    print(f"Buscando consumo em {SUPABASE_URL}/rest/v1/{VIEW_NAME} ...")
+    print(f"Buscando consumo em {SUPABASE_URL}/rest/v1/{VIEW_NAME} (id_conta={ID_CONTA}) ...")
     rows = fetch_all_rows()
 
     os.makedirs("data", exist_ok=True)
