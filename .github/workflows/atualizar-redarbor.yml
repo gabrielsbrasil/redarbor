@@ -31,11 +31,31 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: python gerar_redarbor.py
 
-      - name: Commitar o CSV atualizado (se algo mudou)
+      # Commits feitos pelo GITHUB_TOKEN não disparam outros workflows
+      # automaticamente (proteção do GitHub contra loop infinito). Por isso
+      # regeneramos o manifest.json aqui mesmo, no mesmo job, em vez de
+      # depender do workflow "build-data-manifest.yml".
+      - name: Regenerar data/manifest.json
+        run: |
+          cd data
+          python3 - <<'PY'
+          import json, os
+
+          files = sorted(
+              f for f in os.listdir(".")
+              if f.lower().endswith(".csv") and f.lower() != "manifest.json"
+          )
+          manifest = [{"name": f} for f in files]
+          with open("manifest.json", "w", encoding="utf-8") as fh:
+              json.dump(manifest, fh, ensure_ascii=False, indent=2)
+          print("manifest.json gerado com", len(manifest), "arquivo(s):", files)
+          PY
+
+      - name: Commitar o CSV e o manifest atualizados (se algo mudou)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/redarbor_supabase.csv
+          git add data/redarbor_supabase.csv data/manifest.json
           if git diff --cached --quiet; then
             echo "Nada mudou no consumo, não é preciso commitar."
           else
