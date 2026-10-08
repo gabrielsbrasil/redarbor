@@ -2004,6 +2004,53 @@ function downloadCsv(scope){
   setTimeout(()=>URL.revokeObjectURL(url), 2000);
 }
 
+/* ============ CSV ACADEMIA EXPORT ============ */
+// Exportação em formato fixo para integração com a Academia de Vendas:
+// uma linha por aula assistida, com Academia="ACADEMIA DE VENDAS" e
+// Certificado="sim" sempre (constantes pedidas pela integração).
+function csvRowsForTeamAcademia(team){
+  const rows = [];
+  team.membros.forEach(m=>{
+    const les = filteredLessons(m);
+    les.forEach(a=>{
+      rows.push([m.nome, m.email, a.titulo, 'ACADEMIA DE VENDAS', fmtDateBR(a.iso), 'sim']);
+    });
+  });
+  return rows;
+}
+function buildCsvAcademiaContent(scope){
+  const header = ['Nome','Email','Curso','Academia','Data de conclusão','Certificado'];
+  let rows = [];
+  if(scope === 'all'){
+    RAW_TEAMS.forEach(t => { rows = rows.concat(csvRowsForTeamAcademia(t)); });
+  } else if(scope.startsWith('area:')){
+    const area = areaBySlug[scope.slice(5)];
+    if(area) area.gerencias.forEach(g=>g.leaders.forEach(t => { rows = rows.concat(csvRowsForTeamAcademia(t)); }));
+  } else if(scope.startsWith('gerencia:')){
+    const g = gerenciaBySlug[scope.slice(9)];
+    if(g) g.leaders.forEach(t => { rows = rows.concat(csvRowsForTeamAcademia(t)); });
+  } else {
+    const team = teamBySlug[scope];
+    if(team) rows = csvRowsForTeamAcademia(team);
+  }
+  const lines = [header, ...rows].map(r => r.map(csvEscape).join(','));
+  return lines.join('\r\n');
+}
+function downloadCsvAcademia(scope){
+  const csv = buildCsvAcademiaContent(scope);
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const scopeLabel = scope === 'all' ? 'geral' : scope.replace(':', '-');
+  const stamp = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `academia_${scopeLabel}_${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+}
+
 /* ============ MENU DE EXPORTAÇÃO ============ */
 function menuItemHtml(id, title, desc, icon){
   return `<button class="menu-item" id="${id}" type="button">${icon} ${title}${desc?`<span class="mi-desc">${desc}</span>`:''}</button>`;
@@ -2020,6 +2067,7 @@ function renderExportMenu(){
   function addPair(id, label, desc){
     html += menuItemHtml('export-pdf-'+id, 'PDF — '+label, desc, '📄');
     html += menuItemHtml('export-csv-'+id, 'CSV — '+label, desc, '⭳');
+    html += menuItemHtml('export-csv-academia-'+id, 'CSV Academia — '+label, desc, '🎓');
   }
 
   if(state.lockType === 'leader'){
@@ -2073,12 +2121,16 @@ function renderExportMenu(){
 
   bind('export-pdf-team', ()=>{ panel.classList.remove('open'); buildPrintDoc(view); window.print(); });
   bind('export-csv-team', ()=>{ panel.classList.remove('open'); downloadCsv(view); });
+  bind('export-csv-academia-team', ()=>{ panel.classList.remove('open'); downloadCsvAcademia(view); });
   bind('export-pdf-gerencia', ()=>{ panel.classList.remove('open'); buildPrintDoc(gerenciaScope); window.print(); });
   bind('export-csv-gerencia', ()=>{ panel.classList.remove('open'); downloadCsv(gerenciaScope); });
+  bind('export-csv-academia-gerencia', ()=>{ panel.classList.remove('open'); downloadCsvAcademia(gerenciaScope); });
   bind('export-pdf-area', ()=>{ panel.classList.remove('open'); buildPrintDoc(areaScope); window.print(); });
   bind('export-csv-area', ()=>{ panel.classList.remove('open'); downloadCsv(areaScope); });
+  bind('export-csv-academia-area', ()=>{ panel.classList.remove('open'); downloadCsvAcademia(areaScope); });
   bind('export-pdf-all', ()=>{ panel.classList.remove('open'); buildPrintDoc('all'); window.print(); });
   bind('export-csv-all', ()=>{ panel.classList.remove('open'); downloadCsv('all'); });
+  bind('export-csv-academia-all', ()=>{ panel.classList.remove('open'); downloadCsvAcademia('all'); });
 }
 
 function setupExportDropdown(){
